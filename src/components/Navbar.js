@@ -3,9 +3,9 @@ import { FaCartShopping, FaHeart, FaUser } from "react-icons/fa6";
 import logo from "../img/logo.svg";
 import { FaSearch } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar = ({toggleCart}) => {
   return (
-    <header className="bg-primary text-white flex items-center justify-between px-8 py-6">
+    <header className="bg-primary text-white flex items-center justify-between px-10 py-8">
       <div>
         <img src={logo} alt="Logo" />
       </div>
@@ -20,7 +20,7 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="flex items-center text-xl gap-4">
-        <div className="flex gap-4">
+        <div className="flex gap-4 cursor-pointer" onClick={toggleCart}>
           <FaCartShopping />
           <button>
             <FaHeart />
@@ -32,7 +32,9 @@ const Navbar = () => {
           </button>
           <div className="flex gap-2 items-center">
             <button>Login</button>
-            <FaUser />
+            <button>
+              <FaUser />
+            </button>
           </div>
         </div>
       </div>
