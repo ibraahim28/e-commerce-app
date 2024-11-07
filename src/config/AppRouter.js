@@ -11,19 +11,32 @@ import {
 import Layout from "../Layouts/Layout";
 import Home from "../pages/Home";
 import ProductPage from "../pages/ProductPage";
+import Cart from "../components/Cart";
 
 const AppRouter = () => {
-
-
-  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
-  }
+  };
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<Layout isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />}>
-        <Route path="" element={<Home isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} toggleCart={toggleCart}  />} />
+      <Route
+        path="/"
+        element={
+          <Layout isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+        }
+      >
+        <Route
+          path=""
+          element={
+            <Home
+              isCartOpen={isCartOpen}
+              setIsCartOpen={setIsCartOpen}
+              toggleCart={toggleCart}
+            />
+          }
+        />
         <Route path="products/:productId" element={<ProductPage />} />
       </Route>
     )

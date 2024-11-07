@@ -2,31 +2,31 @@ import React, { useState } from "react";
 import image from "../img/her-fruits.webp";
 import { useNavigate } from "react-router-dom";
 
-const Card = ({ cart, setCart, data }) => {
+const Card = ({ data }) => {
   const navigate = useNavigate();
   // const [isInCart, setIsInCart] = useState(data.addedToCart);
 
-  const addToCart = (item) => {
-    if (data.addedToCart) {
+  // const addToCart = (item) => {
+  //   if (data.addedToCart) {
     
-      setCart((prevCart) => {
-        const updatedCart = prevCart.filter(
-          (cartItem) => cartItem.id !== item.id
-        );
-        return updatedCart;
-      });
-      // setIsInCart(false);
-      data.addedToCart = false;
-    } else {
+  //     setCart((prevCart) => {
+  //       const updatedCart = prevCart.filter(
+  //         (cartItem) => cartItem.id !== item.id
+  //       );
+  //       return updatedCart;
+  //     });
+    //   // setIsInCart(false);
+    //   data.addedToCart = false;
+    // } else {
 
       
-      const newItem = { ...item, addedToCart: true };
-      setCart((prevCart) => [...prevCart, newItem]);
-      // setIsInCart(true);
-      data.addedToCart = true;
+  //     const newItem = { ...item, addedToCart: true };
+  //     setCart((prevCart) => [...prevCart, newItem]);
+  //     // setIsInCart(true);
+  //     data.addedToCart = true;
 
-    }
-  };
+  //   }
+  // };
 
   const navigateToProduct = (data) => {
     console.log("data",data);
@@ -35,14 +35,11 @@ const Card = ({ cart, setCart, data }) => {
 
   return (
     <div
-      className="flex w-1/5 gap-3 flex-col border rounded-lg cursor-pointer"
+      className="flex w-1/5 gap-3 flex-col border rounded-lg cursor-pointer shadow-md shadow-gray-300"
      
     >
       <div className="w-full p-4">
         <img
-         onClick={() => {
-          navigateToProduct(data);
-        }}
           className="w-full cursor-pointer aspect-video hover:scale-110 transition-all duration-300"
           src={image}
           alt="fruits"
@@ -52,17 +49,17 @@ const Card = ({ cart, setCart, data }) => {
         <p className="cursor-pointer hover:text-primary transition-all duration-200">
           {data.category}
         </p>
-        <h1 className="text-2xl cursor-pointer hover:text-primary transition-all duration-200">
+        <h1 className="text-2xl cursor-pointer hover:text-primary transition-all duration-200 line-clamp-1">
           {data.title}
         </h1>
         <p className="text-lg">{data.price}-PKR</p>
       </div>
       <div className="py-4 mx-auto">
         <button
-          onClick={() => addToCart(data)}
-          className="hover:bg-primary hover:text-white px-10 py-2 transition-all duration-200 rounded-full font-lg font-medium"
+        onClick={()=>{navigateToProduct(data)}}
+          className="hover:bg-primary hover:text-white border-2 border-primary px-10 py-2 transition-all duration-200 rounded-full font-lg font-medium"
         >
-          {data.addedToCart ? "Remove from Cart" : "Add to Cart"}
+          See Details
         </button>
       </div>
     </div>

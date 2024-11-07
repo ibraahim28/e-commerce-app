@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 
-const CardLayout = ({ cart, setCart, data }) => {
+const CardLayout = ({ data }) => {
   const [showData, setShowData] = useState(data);
-  
 
   const handleClick = (text) => {
     setShowData(
@@ -18,9 +17,8 @@ const CardLayout = ({ cart, setCart, data }) => {
           <span className="font-light text-base text-primary">
             All Product Shop
           </span>
-
           <h3 className="text-3xl font-bold text-text-primary">
-            {showData[0].category}
+            {showData.length > 8 ? "All Products" : showData[0].category}
           </h3>
         </div>
         <div className="mx-10 w-1/3 line ">
@@ -63,7 +61,7 @@ const CardLayout = ({ cart, setCart, data }) => {
 
       <div className="flex w-screen gap-5 py-5 items-center flex-wrap">
         {showData.map((item, index) => (
-          <Card  key={index} cart={cart} setCart={setCart} data={item} />
+          <Card key={index} data={item} />
         ))}
       </div>
     </div>
