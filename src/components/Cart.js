@@ -1,28 +1,38 @@
 import React, { useEffect, useState } from "react";
 import image from "../img/her-fruits.webp";
-import groceryItems from "../data/data";
+import groceryItems from "../utils/data/data";
+import { getProductsFromCart } from "../utils/localStorage";
+import { useNavigate } from "react-router-dom";
 
 const Cart = ({ isOpen, toggleCart }) => {
   const [myCart, setMyCart] = useState([]);
-
-
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Get all IDs stored in localStorage
-    const cartIds = Object.values(localStorage).map(Number); // Convert IDs to numbers
+    const cartIds = getProductsFromCart();
+
     // Filter groceryItems based on the IDs in cartIds
     const cartItems = groceryItems.filter((item) => cartIds.includes(item.id));
+
     cartItems.map((v) => {
       v.quantity = 1;
       v.totalPrice = v.price;
-      
     });
     setMyCart(cartItems);
 
+    console.log("My Cart", myCart);
   }, []);
 
-
-  
+  const priceQuantity = (price, quantity) => {
+    return price * quantity;
+  };
+  const totalPrice = () => {
+    return myCart.reduce(
+      (total, v) => total + priceQuantity(v.price, v.quantity),
+      0
+    );
+  };
 
   const removeFromCart = (params) => {
     setMyCart((prevCart = []) =>
@@ -50,6 +60,11 @@ const Cart = ({ isOpen, toggleCart }) => {
     );
   };
 
+  const navigateToCheckout =() => {
+    navigate('checkout')
+  }
+  
+
   return (
     <div
       className={`overflow-y-auto p-3 fixed top-0 right-0 h-full w-1/4 z-10 bg-white shadow-lg transition-transform duration-300 ${
@@ -65,62 +80,77 @@ const Cart = ({ isOpen, toggleCart }) => {
         </button>
         <div>
           {myCart.length > 0 ? (
-            <div>
-           { myCart.map((item, index) => (
-              <div
-                key={index}
-                className="cursor-pointer border-b py-4 flex flex-col gap-3"
-              >
-                <div>
-                  <img
-                    src={image}
-                    alt={item.title}
-                    className="w-full h-24 object-cover"
-                  />
-                </div>
-                <div className="text-left">
-                  <h3 className="cursor-pointer hover:text-primary font-semibold">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm">{item.category}</p>
-                  <p className="text-sm">{item.description}</p>
-                </div>
-                <div className="flex justify-between items-center w-full p-2">
-                  <div className="w-4/5">
-                    <p className="text-lg font-medium my-2">
-                      PKR {item.totalPrice}
-                    </p>
-                  </div>
-                  <div className="w-1/5 ">
-                    <input
-                      min={1}
-                      className=" self-end border px-3  py-1"
-                      type="number"
-                      placeholder="1"
-                      onChange={(e) => {
-                        handleQuantity(item, e);
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <button
-                    onClick={() => {
-                      removeFromCart(item);
-                    }}
-                    className="text-red-500 hover:underline"
+            <>
+              <div>
+                {myCart.map((item, index) => (
+                  <div
+                    key={index}
+                    className="cursor-pointer border-b py-4 flex flex-col gap-3"
                   >
-                    Remove from Cart
+                    <div>
+                      <img
+                        src={image}
+                        alt={item.title}
+                        className="w-full h-24 object-cover"
+                      />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="cursor-pointer hover:text-primary font-semibold">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm">{item.category}</p>
+                      <p className="text-sm">{item.description}</p>
+                    </div>
+                    <div className="flex justify-between items-center w-full p-2">
+                      <div className="w-4/5">
+                        <p className="text-lg font-medium my-2">
+                          PKR {priceQuantity(item.price, item.quantity)}
+                        </p>
+                      </div>
+                      <div className="w-1/5 ">
+                        <input
+                          min={1}
+                          className=" w-full self-end border px-3  py-1"
+                          type="number"
+                          placeholder="1"
+                          onChange={(e) => {
+                            handleQuantity(item, e);
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <button
+                        onClick={() => {
+                          removeFromCart(item);
+                        }}
+                        className="text-red-500 hover:underline"
+                      >
+                        Remove from Cart
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div>
+                  <h2></h2>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 p-2 ">
+                <div className="flex justify-between">
+                  <div>
+                    <h2 className="font-medium text-xl">Your Total</h2>
+                  </div>
+                  <div>
+                    <h2 className="font-medium text-xl">{totalPrice()}</h2>
+                  </div>
+                </div>
+                <div>
+                  <button onClick={navigateToCheckout} className="bg-blue-500 hover:bg-blue-800 text-white text-xl font-medium w-full py-2 rounded-lg  transition-all duration-150">
+                    Checkout
                   </button>
                 </div>
               </div>
-              
-            ))}
-            <div>
-              <h2></h2>
-            </div>
-            </div>
-            
+            </>
           ) : (
             <h2 className="text-center py-4">No Products here</h2>
           )}

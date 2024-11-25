@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
+import { BASE_URL } from "../api/config";
 
 const CardLayout = ({ data }) => {
-  const [showData, setShowData] = useState(data);
+  const [showData, setShowData] = useState([]);
 
   const handleClick = (text) => {
     setShowData(
       data.filter((item) => item.category.toLowerCase() === text.toLowerCase())
     );
   };
+
+  useEffect(() => {
+    fetch(BASE_URL, {
+      method: "GET",
+    })
+      .then((res) => {
+        res.json().then((response) => {
+          setShowData(response);
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, []);
 
   return (
     <div className="mx-20">
@@ -18,7 +33,7 @@ const CardLayout = ({ data }) => {
             All Product Shop
           </span>
           <h3 className="text-3xl font-bold text-text-primary">
-            {showData.length > 8 ? "All Products" : showData[0].category}
+            {/* {showData.length > 8 ? "All Products" : showData[0].category} */}
           </h3>
         </div>
         <div className="mx-10 w-1/3 line ">

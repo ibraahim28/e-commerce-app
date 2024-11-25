@@ -4,7 +4,7 @@ import HeroSection from "../components/HeroSection";
 import Card from "../components/Card";
 import CardLayout from "../Layouts/CardLayout";
 import Cart from "../components/Cart";
-import groceryItems from "../data/data";
+import groceryItems from "../utils/data/data";
 
 const Home = ({ isCartOpen, setIsCartOpen, toggleCart }) => {
 

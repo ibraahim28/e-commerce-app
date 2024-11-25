@@ -1,28 +1,37 @@
 import React, { useEffect, useState } from "react";
 import image from "../img/her-fruits.webp";
 import { useLocation, useNavigate } from "react-router-dom";
-import Cart from "../components/Cart";
-
+import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 
 const ProductPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const [localItem, setLocalItem] = useState("");
+  const [getProducts, setGetProducts] = useState(getProductsFromCart() ?? []);
+  const [isAddedInCart, setIsAddedInCart] = useState(false);
+
+  useEffect(() => {
+    setIsAddedInCart(getProducts.includes(state?.id));
+  });
 
   const goBack = () => {
     navigate(-1);
   };
 
-  useEffect(() => {
-    setLocalItem(localStorage.getItem(state.title));
-  }, [localItem]);
-
   const handleCart = () => {
-    console.log("before assining", localItem);
-    localItem
-      ? setLocalItem(localStorage.removeItem(state.title))
-      : setLocalItem(localStorage.setItem(state.title, state.id));
-    console.log("after assining", localItem);
+    let getCartData = getProducts;
+    console.log(getCartData);
+
+    if (getCartData.find((v) => Number(v) === Number(state.id))) {
+      const filteredProducts = getCartData.filter((v) => v !== state.id);
+      addProductToCart(filteredProducts);
+      setGetProducts(filteredProducts);
+      setIsAddedInCart(false);
+    } else {
+      getCartData.push(Number(state.id));
+      addProductToCart(getCartData);
+      setGetProducts(getCartData);
+      setIsAddedInCart(true);
+    }
   };
 
   return (
@@ -51,7 +60,7 @@ const ProductPage = () => {
               onClick={handleCart}
               className="bg-text-primary w-full py-2 text-white hover:bg-primary font-medium rounded-md"
             >
-              {localItem ? "Remove from Cart" : " Add to Cart"}
+              {isAddedInCart ? "Remove from Cart" : " Add to Cart"}
             </button>
             <button
               onClick={goBack}

@@ -11,7 +11,7 @@ import {
 import Layout from "../Layouts/Layout";
 import Home from "../pages/Home";
 import ProductPage from "../pages/ProductPage";
-import Cart from "../components/Cart";
+import CheckoutPage from "../pages/CheckoutPage";
 
 const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -38,6 +38,7 @@ const AppRouter = () => {
           }
         />
         <Route path="products/:productId" element={<ProductPage />} />
+        <Route path="checkout" element={<CheckoutPage />} />
       </Route>
     )
   );
