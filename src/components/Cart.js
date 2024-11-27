@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import image from "../img/her-fruits.webp";
 import groceryItems from "../utils/data/data";
-import { getProductsFromCart } from "../utils/localStorage";
+import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useNavigate } from "react-router-dom";
 
 const Cart = ({ isOpen, toggleCart }) => {
@@ -39,7 +39,9 @@ const Cart = ({ isOpen, toggleCart }) => {
       prevCart.filter((cartItem) => cartItem.id !== params.id)
     );
 
-    localStorage.removeItem(params.title);
+    const data = getProductsFromCart();
+    const filteredData = data.filter((v)=> Number(v) !== Number(params.id))
+    addProductToCart(filteredData);
   };
 
   const handleQuantity = (item, e) => {

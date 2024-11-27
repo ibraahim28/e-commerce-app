@@ -2,8 +2,11 @@ import React from "react";
 import { FaCartShopping, FaHeart, FaUser } from "react-icons/fa6";
 import logo from "../img/logo.svg";
 import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
-const Navbar = ({toggleCart}) => {
+const Navbar = ({ toggleCart }) => {
+  const { counter } = useSelector((s) => s);
+  console.log("counter", counter);
   return (
     <header className="bg-primary text-white flex items-center justify-between px-10 py-8">
       <div>
@@ -20,8 +23,11 @@ const Navbar = ({toggleCart}) => {
         </ul>
       </div>
       <div className="flex items-center text-xl gap-4">
-        <div className="flex gap-4 cursor-pointer" onClick={toggleCart}>
+        <div className="flex gap-4 cursor-pointer items-center">
+        <p>{counter}</p>
+          <div onClick={toggleCart}>
           <FaCartShopping />
+          </div>
           <button>
             <FaHeart />
           </button>
