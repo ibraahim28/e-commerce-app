@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from "react";
 import image from "../img/her-fruits.webp";
-import groceryItems from "../utils/data/data";
+import { fetchData } from "../utils/data/data";
 import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { updateCounter } from "../redux/reducer";
 
 const Cart = ({ isOpen, toggleCart }) => {
   const [myCart, setMyCart] = useState([]);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    const getDataFromCart = async () => {
+      const API = await fetchData();
+      const cartIds = getProductsFromCart();
+      const cartItems = API.filter((item) => cartIds.includes(item.id));
+
+      cartItems.map((v) => {
+        v.quantity = 1;
+        v.totalPrice = v.price;
+      });
+      setMyCart(cartItems);
+    };
+    getDataFromCart();
     // Get all IDs stored in localStorage
-    const cartIds = getProductsFromCart();
 
-    // Filter groceryItems based on the IDs in cartIds
-    const cartItems = groceryItems.filter((item) => cartIds.includes(item.id));
-
-    cartItems.map((v) => {
-      v.quantity = 1;
-      v.totalPrice = v.price;
-    });
-    setMyCart(cartItems);
-
-    console.log("My Cart", myCart);
-  }, []);
+  }, [myCart]);
 
   const priceQuantity = (price, quantity) => {
     return price * quantity;
@@ -40,8 +44,9 @@ const Cart = ({ isOpen, toggleCart }) => {
     );
 
     const data = getProductsFromCart();
-    const filteredData = data.filter((v)=> Number(v) !== Number(params.id))
+    const filteredData = data.filter((v) => Number(v) !== Number(params.id));
     addProductToCart(filteredData);
+    dispatch(updateCounter("decrease"));
   };
 
   const handleQuantity = (item, e) => {
@@ -62,10 +67,9 @@ const Cart = ({ isOpen, toggleCart }) => {
     );
   };
 
-  const navigateToCheckout =() => {
-    navigate('checkout')
-  }
-  
+  const navigateToCheckout = () => {
+    navigate("checkout");
+  };
 
   return (
     <div
@@ -91,17 +95,17 @@ const Cart = ({ isOpen, toggleCart }) => {
                   >
                     <div>
                       <img
-                        src={image}
+                        src={item?.image}
                         alt={item.title}
-                        className="w-full h-24 object-cover"
+                        className=" mx-auto h-24 w-auto  object-cover"
                       />
                     </div>
                     <div className="text-left">
                       <h3 className="cursor-pointer hover:text-primary font-semibold">
                         {item.title}
                       </h3>
-                      <p className="text-sm">{item.category}</p>
-                      <p className="text-sm">{item.description}</p>
+                      <p className="text-sm capitalize font-semibold ">{item.category}</p>
+                      <p className="text-sm line-clamp-2">{item.description}</p>
                     </div>
                     <div className="flex justify-between items-center w-full p-2">
                       <div className="w-4/5">
@@ -147,7 +151,10 @@ const Cart = ({ isOpen, toggleCart }) => {
                   </div>
                 </div>
                 <div>
-                  <button onClick={navigateToCheckout} className="bg-blue-500 hover:bg-blue-800 text-white text-xl font-medium w-full py-2 rounded-lg  transition-all duration-150">
+                  <button
+                    onClick={navigateToCheckout}
+                    className="bg-blue-500 hover:bg-blue-800 text-white text-xl font-medium w-full py-2 rounded-lg  transition-all duration-150"
+                  >
                     Checkout
                   </button>
                 </div>

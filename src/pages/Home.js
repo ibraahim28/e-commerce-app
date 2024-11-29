@@ -4,7 +4,6 @@ import HeroSection from "../components/HeroSection";
 import Card from "../components/Card";
 import CardLayout from "../Layouts/CardLayout";
 import Cart from "../components/Cart";
-import groceryItems from "../utils/data/data";
 
 const Home = ({ isCartOpen, setIsCartOpen, toggleCart }) => {
 
@@ -12,7 +11,7 @@ const Home = ({ isCartOpen, setIsCartOpen, toggleCart }) => {
   return (
     <>
       <HeroSection />
-      <CardLayout data={groceryItems} />
+      <CardLayout  />
       <Cart
         isOpen={isCartOpen}
         toggleCart={toggleCart}

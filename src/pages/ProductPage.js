@@ -13,7 +13,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     setIsAddedInCart(getProducts.includes(state?.id));
-  });
+  }, [getProducts,state?.id]);
 
   const goBack = () => {
     navigate(-1);

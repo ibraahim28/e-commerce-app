@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { getProductsFromCart } from "../utils/localStorage/index"; 
+import { getProductsFromCart } from "../utils/localStorage/index";
 import { BASE_URL } from "../api/config";
-
-
-
+import { fetchData } from "../utils/data/data";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     const cartIds = getProductsFromCart();
@@ -16,32 +14,26 @@ const CheckoutPage = () => {
     setMyCart(filteredData);
   }, [data]);
 
-
   useEffect(() => {
-    fetch(BASE_URL, {
-      method: "GET",
-    })
-      .then((res) => {
-        res.json().then((response) => {
-          setData(response);
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    const getData = async () => {
+      const API_DATA = await fetchData();
+      setData(API_DATA);
+    };
+    getData();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
-         
           <div>
             <h2 className="text-2xl font-semibold mb-4">Checkout Form</h2>
             <form className="space-y-4">
-             
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Full Name
                 </label>
                 <input
@@ -53,9 +45,11 @@ const CheckoutPage = () => {
                 />
               </div>
 
-             
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -67,9 +61,11 @@ const CheckoutPage = () => {
                 />
               </div>
 
-             
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Address
                 </label>
                 <textarea
@@ -81,9 +77,11 @@ const CheckoutPage = () => {
                 />
               </div>
 
-           
               <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="city"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   City
                 </label>
                 <input
@@ -96,7 +94,10 @@ const CheckoutPage = () => {
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Phone Number
                 </label>
                 <input
@@ -122,22 +123,37 @@ const CheckoutPage = () => {
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px]">
               {myCart.length > 0 ? (
                 myCart.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1 ml-4">
-                      <p className="text-lg font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">{item.description}</p>
-                      <p className="text-sm text-gray-700">Price: {item.price} PKR</p>
+                  <>
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div className="flex-1 mx-4">
+                        <p className="text-lg text-gray-700 font-bold">
+                          {item.title}
+                        </p>
+                        <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
+                          {item.description}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Price: {item.price} PKR
+                        </p>
+                      </div>
+                      <p className="font-semibold text-2xl text-indigo-500 hover:text-red-400 cursor-pointer ">
+                        x
+                      </p>
                     </div>
-                    <p className="font-semibold text-indigo-500">{item.quantity}x</p>
-                  </div>
+                    <div> 
+                      {myCart.reduce((total, v)=> {
+                          return total+= v.price
+                      }, 0)}
+                    </div>
+                  </>
                 ))
               ) : (
                 <p className="text-center text-gray-400">Your cart is empty.</p>

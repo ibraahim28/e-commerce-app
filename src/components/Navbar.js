@@ -23,16 +23,19 @@ const Navbar = ({ toggleCart }) => {
         </ul>
       </div>
       <div className="flex items-center text-xl gap-4">
-        <div className="flex gap-4 cursor-pointer items-center">
-        <p>{counter}</p>
-          <div onClick={toggleCart}>
+        <div className="flex flex-col gap-4 cursor-pointer items-center">
+          <div onClick={toggleCart} className="relative">
           <FaCartShopping />
           </div>
-          <button>
-            <FaHeart />
-          </button>
+        <div className="bg-text-primary w-5 h-5 absolute top-4 rounded-full text-sm text-gray-200 flex items-center justify-center ">
+          <p>{counter.count}</p>
+        </div>
+         
         </div>
         <div className="flex items-center gap-4">
+        <button>
+            <FaHeart />
+          </button>
           <button>
             <FaSearch />
           </button>

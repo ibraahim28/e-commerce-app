@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
-import { BASE_URL } from "../api/config";
+import { useSelector } from "react-redux";
+import { fetchData } from "../utils/data/data";
 
-const CardLayout = ({ data }) => {
-  const [showData, setShowData] = useState([]);
-
-  const handleClick = (text) => {
-    setShowData(
-      data.filter((item) => item.category.toLowerCase() === text.toLowerCase())
-    );
-  };
+const CardLayout = () => {
+  const [products, setProducts] = useState([]);
+  const [filterCategory, setFilterCategory] = useState(["All Products"]);
+  const [activeCategory, setActiveCategory] = useState("All Products");
 
   useEffect(() => {
-    fetch(BASE_URL, {
-      method: "GET",
-    })
-      .then((res) => {
-        res.json().then((response) => {
-          setShowData(response);
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    const getData = async () => {
+      const API_DATA = await fetchData();
+      if (API_DATA) {
+        setProducts(API_DATA);
+      } else {
+        console.log("Error fetching data");
+      }
+    };
+    getData();
   }, []);
+
+  useEffect(() => {
+    const allCategories = [
+      "All Products",
+      ...new Set(products.map((product) => product.category)),
+    ];
+    setFilterCategory(allCategories);
+  }, [products]);
 
   return (
     <div className="mx-20">
@@ -32,52 +35,40 @@ const CardLayout = ({ data }) => {
           <span className="font-light text-base text-primary">
             All Product Shop
           </span>
-          <h3 className="text-3xl font-bold text-text-primary">
-            {/* {showData.length > 8 ? "All Products" : showData[0].category} */}
+          <h3 className="text-3xl font-bold text-text-primary capitalize">
+            {activeCategory}
           </h3>
         </div>
         <div className="mx-10 w-1/3 line ">
           <div className="flex flex-wrap gap-2 justify-center items-center text-xl">
-            <button
-              className="px-2 text-gray-500 hover:text-black "
-              onClick={(e) => {
-                handleClick(e.target.innerText);
+            <select
+              onChange={(e) => {
+                setActiveCategory(e.target.value);
               }}
+              className=" border-2 border-gray-800 capitalize px-2 py-1"
             >
-              Vegetables
-            </button>
-            <button
-              className="px-2 text-gray-500 hover:text-black "
-              onClick={(e) => {
-                handleClick(e.target.innerText);
-              }}
-            >
-              Dairy & Eggs
-            </button>
-            <button
-              className="px-2 text-gray-500 hover:text-black "
-              onClick={(e) => {
-                handleClick(e.target.innerText);
-              }}
-            >
-              Meat
-            </button>
-            <button
-              className="px-2 text-gray-500 hover:text-black "
-              onClick={(e) => {
-                handleClick(e.target.innerText);
-              }}
-            >
-              Fruits
-            </button>
+              {filterCategory.map((category) => {
+                return (
+                  <option  className="mb-2 border-b-2 font-semibold capitalize">
+                    {category}
+                  </option>
+                );
+              })}
+            </select>
           </div>
         </div>
       </div>
 
       <div className="flex w-screen gap-5 py-5 items-center flex-wrap">
-        {showData.map((item, index) => (
-          <Card key={index} data={item} />
-        ))}
+        {activeCategory === "All Products"
+          ? products.map((item, index) => <Card key={index} data={item} />)
+          : products.map((product, index) => {
+              return product.category === activeCategory ? (
+                <Card key={index} data={product} />
+              ) : (
+                ""
+              );
+            })}
       </div>
     </div>
   );
