@@ -1,26 +1,70 @@
 import React, { useState, useEffect } from "react";
-import { getProductsFromCart } from "../utils/localStorage/index";
+import {
+  addProductToCart,
+  getProductsFromCart,
+} from "../utils/localStorage/index";
 import { BASE_URL } from "../api/config";
 import { fetchData } from "../utils/data/data";
+import { updateCounter } from "../redux/reducer";
+import { useDispatch } from "react-redux";
+import SkeletonLoader from "../components/loader/Loader";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
   const [data, setData] = useState([]);
+  const [loading, setloading] = useState(true);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const cartIds = getProductsFromCart();
+  // useEffect(() => {
+  //   const cartIds = getProductsFromCart();
 
-    const filteredData = data.filter((item) => cartIds.includes(item.id));
-    setMyCart(filteredData);
-  }, [data]);
+  //   const filteredData = data.filter((item) => cartIds.includes(item.id));
+  //   setMyCart(filteredData);
+  // setloading(false)
+  // }, [data]);
+
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const API_DATA = await fetchData();
+  //     setData(API_DATA);
+      
+  //   };
+  //   getData();
+  // }, []);
 
   useEffect(() => {
     const getData = async () => {
-      const API_DATA = await fetchData();
-      setData(API_DATA);
+      try {
+        const API_DATA = await fetchData(); // Fetch API data
+        setData(API_DATA);
+  
+        const cartIds = getProductsFromCart(); // Get products from cart
+        const filteredData = API_DATA.filter((item) => cartIds.includes(item.id));
+        setMyCart(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setloading(false); // Set loading to false after processing
+      }
     };
+  
     getData();
   }, []);
+  
+
+  const removefromCart = (params) => {
+    setMyCart((prevCart = []) =>
+      prevCart.filter((cartItem) => cartItem.id !== params.id)
+    );
+
+    console.log("remove from cart from checkout", params.id);
+    
+
+    const data = getProductsFromCart();
+    const filteredData = data.filter((v) => Number(v) !== Number(params.id));
+    addProductToCart(filteredData);
+    dispatch(updateCounter("decrease"));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -121,7 +165,10 @@ const CheckoutPage = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Your Cart</h2>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px]">
-              {myCart.length > 0 ? (
+              
+              {   
+                loading ? <SkeletonLoader width="100%" height="200px" borderRadius="10px" /> :
+              myCart.length > 0 ? (
                 myCart.map((item, index) => (
                   <>
                     <div
@@ -144,14 +191,14 @@ const CheckoutPage = () => {
                           Price: {item.price} PKR
                         </p>
                       </div>
-                      <p className="font-semibold text-2xl text-indigo-500 hover:text-red-400 cursor-pointer ">
+                      <p
+                        onClick={() => {
+                          removefromCart(item);
+                        }}
+                        className="font-semibold text-2xl text-indigo-500 hover:text-red-400 cursor-pointer "
+                      >
                         x
                       </p>
-                    </div>
-                    <div> 
-                      {myCart.reduce((total, v)=> {
-                          return total+= v.price
-                      }, 0)}
                     </div>
                   </>
                 ))

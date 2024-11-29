@@ -24,9 +24,8 @@ const Cart = ({ isOpen, toggleCart }) => {
       setMyCart(cartItems);
     };
     getDataFromCart();
-    // Get all IDs stored in localStorage
 
-  }, [myCart]);
+  }, []); 
 
   const priceQuantity = (price, quantity) => {
     return price * quantity;
@@ -50,7 +49,7 @@ const Cart = ({ isOpen, toggleCart }) => {
   };
 
   const handleQuantity = (item, e) => {
-    let newQuantity = e.target.value;
+    let newQuantity = Number(e.target.value);
 
     if (newQuantity <= 0) newQuantity = 1;
 
@@ -110,7 +109,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                     <div className="flex justify-between items-center w-full p-2">
                       <div className="w-4/5">
                         <p className="text-lg font-medium my-2">
-                          PKR {priceQuantity(item.price, item.quantity)}
+                          PKR { item.totalPrice || priceQuantity(item.price, item.quantity)}
                         </p>
                       </div>
                       <div className="w-1/5 ">

@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchData } from "../utils/data/data";
+import SkeletonLoader from "../components/loader/Loader";
+import { updateLoader } from "../redux/reducer";
 
 const CardLayout = () => {
   const [products, setProducts] = useState([]);
   const [filterCategory, setFilterCategory] = useState(["All Products"]);
   const [activeCategory, setActiveCategory] = useState("All Products");
-
+  const { isLoading } = useSelector((v) => v.counter);
+  const dispatch = useDispatch();
   useEffect(() => {
     const getData = async () => {
       const API_DATA = await fetchData();
       if (API_DATA) {
         setProducts(API_DATA);
+        dispatch(updateLoader(false));
       } else {
         console.log("Error fetching data");
+        dispatch(updateLoader(false));
       }
     };
     getData();
@@ -49,7 +54,7 @@ const CardLayout = () => {
             >
               {filterCategory.map((category) => {
                 return (
-                  <option  className="mb-2 border-b-2 font-semibold capitalize">
+                  <option className="mb-2 border-b-2 font-semibold capitalize">
                     {category}
                   </option>
                 );
@@ -60,15 +65,35 @@ const CardLayout = () => {
       </div>
 
       <div className="flex w-screen gap-5 py-5 items-center flex-wrap">
-        {activeCategory === "All Products"
-          ? products.map((item, index) => <Card key={index} data={item} />)
-          : products.map((product, index) => {
-              return product.category === activeCategory ? (
-                <Card key={index} data={product} />
-              ) : (
-                ""
-              );
-            })}
+        {!isLoading
+          ? activeCategory === "All Products"
+            ? products.map((item, index) => <Card key={index} data={item} />)
+            : products.map((product, index) => {
+                return product.category === activeCategory ? (
+                  <Card key={index} data={product} />
+                ) : (
+                  ""
+                );
+              })
+          : Array(8) 
+              .fill(null)
+              .map((_, index) => (
+                <div key={index} className="w-[200px]">
+                  <SkeletonLoader height="150px" /> 
+                  <SkeletonLoader
+                    width="80%"
+                    height="20px"
+                    className="mt-3"
+                  />{" "}
+                  
+                  <SkeletonLoader
+                    width="60%"
+                    height="15px"
+                    className="mt-2"
+                  />{" "}
+                  
+                </div>
+              ))}
       </div>
     </div>
   );
