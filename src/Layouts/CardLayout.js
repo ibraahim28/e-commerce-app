@@ -78,10 +78,10 @@ const CardLayout = () => {
           : Array(8) 
               .fill(null)
               .map((_, index) => (
-                <div key={index} className="w-[200px]">
-                  <SkeletonLoader height="150px" /> 
+                <div className="flex gap-3 flex-col w-[20%]">
+                  <SkeletonLoader height="250px" /> 
                   <SkeletonLoader
-                    width="80%"
+                    width="80%%"
                     height="20px"
                     className="mt-3"
                   />{" "}
@@ -92,7 +92,7 @@ const CardLayout = () => {
                     className="mt-2"
                   />{" "}
                   
-                </div>
+                </div >
               ))}
       </div>
     </div>

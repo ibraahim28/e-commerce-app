@@ -40,7 +40,7 @@ const Card = ({ data }) => {
     >
       <div className="w-full p-4">
         <img
-          className="w-full cursor-pointer aspect-video hover:scale-110 transition-all duration-300"
+          className="w-full cursor-pointer aspect-square hover:scale-110 transition-all duration-300"
           src={data.image}
           alt="fruits"
         />

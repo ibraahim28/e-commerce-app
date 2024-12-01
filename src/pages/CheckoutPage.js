@@ -3,17 +3,19 @@ import {
   addProductToCart,
   getProductsFromCart,
 } from "../utils/localStorage/index";
-import { BASE_URL } from "../api/config";
-import { fetchData } from "../utils/data/data";
-import { updateCounter } from "../redux/reducer";
-import { useDispatch } from "react-redux";
+import { updateCounter, updateLoader } from "../redux/reducer";
+import { useDispatch, useSelector } from "react-redux";
 import SkeletonLoader from "../components/loader/Loader";
+import { useLocation } from "react-router-dom";
+import { message } from "antd";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
-  const [data, setData] = useState([]);
-  const [loading, setloading] = useState(true);
+  const { state } = useLocation();
+  console.log("state ==>", state);
+  const { isLoading } = useSelector((v) => v.counter);
   const dispatch = useDispatch();
+  console.log(isLoading);
 
   // useEffect(() => {
   //   const cartIds = getProductsFromCart();
@@ -27,43 +29,42 @@ const CheckoutPage = () => {
   //   const getData = async () => {
   //     const API_DATA = await fetchData();
   //     setData(API_DATA);
-      
+
   //   };
   //   getData();
   // }, []);
 
   useEffect(() => {
-    const getData = async () => {
+    const getData = () => {
       try {
-        const API_DATA = await fetchData(); // Fetch API data
-        setData(API_DATA);
-  
-        const cartIds = getProductsFromCart(); // Get products from cart
-        const filteredData = API_DATA.filter((item) => cartIds.includes(item.id));
-        setMyCart(filteredData);
+        setMyCart(state);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching Cart Data:", error);
+        message.error("Error fetching data");
       } finally {
-        setloading(false); // Set loading to false after processing
+       
+        dispatch(updateLoader(false));
+        
       }
     };
-  
+
     getData();
   }, []);
-  
 
   const removefromCart = (params) => {
-    setMyCart((prevCart = []) =>
-      prevCart.filter((cartItem) => cartItem.id !== params.id)
-    );
-
+    const filteredState = state.filter((v) => v.id !== params.id);
+    setMyCart(filteredState);
     console.log("remove from cart from checkout", params.id);
-    
 
     const data = getProductsFromCart();
     const filteredData = data.filter((v) => Number(v) !== Number(params.id));
     addProductToCart(filteredData);
+
     dispatch(updateCounter("decrease"));
+  };
+
+  const handleSubmit = () => {
+    message.success("Order Placed");
   };
 
   return (
@@ -155,6 +156,7 @@ const CheckoutPage = () => {
 
               <button
                 type="submit"
+                onSubmit={handleSubmit}
                 className="w-full bg-indigo-500 text-white font-medium rounded-lg py-2 hover:bg-indigo-600"
               >
                 Place Order
@@ -164,11 +166,17 @@ const CheckoutPage = () => {
 
           <div>
             <h2 className="text-2xl font-semibold mb-4">Your Cart</h2>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px]">
-              
-              {   
-                loading ? <SkeletonLoader width="100%" height="200px" borderRadius="10px" /> :
-              myCart.length > 0 ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px] w-full">
+              {isLoading ? (
+                <>
+                <SkeletonLoader
+                  width="90%"
+                  height="100px"
+                  borderRadius="10px"
+                />
+                <SkeletonLoader width="80%" height="20px" borderRadius="10px"  />
+                </>
+              ) : myCart.length > 0 ? (
                 myCart.map((item, index) => (
                   <>
                     <div
@@ -177,8 +185,8 @@ const CheckoutPage = () => {
                     >
                       <img
                         src={item.image}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        alt={item.title}
+                        className="w-16 object-cover rounded-lg"
                       />
                       <div className="flex-1 mx-4">
                         <p className="text-lg text-gray-700 font-bold">
@@ -187,9 +195,17 @@ const CheckoutPage = () => {
                         <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
                           {item.description}
                         </p>
-                        <p className="text-sm text-gray-700">
-                          Price: {item.price} PKR
-                        </p>
+                        <div className="flex gap-4 items-center ">
+                          <p className="text-sm text-gray-700">
+                            Price: {item.price} PKR
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            Quantity : {item.quantity}{" "}
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            Total Price : {item.totalPrice}{" "}
+                          </p>
+                        </div>
                       </div>
                       <p
                         onClick={() => {

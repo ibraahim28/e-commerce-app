@@ -13,22 +13,21 @@ const Cart = ({ isOpen, toggleCart }) => {
 
   useEffect(() => {
     const getDataFromCart = async () => {
-      const API = await fetchData();
+      const API_DATA = await fetchData();
       const cartIds = getProductsFromCart();
-      const cartItems = API.filter((item) => cartIds.includes(item.id));
+      const cartItems = API_DATA.filter((item) => cartIds.includes(item.id));
 
-      cartItems.map((v) => {
+      cartItems.forEach((v) => {
         v.quantity = 1;
-        v.totalPrice = v.price;
+        v.totalPrice = v.price * v.quantity;
       });
       setMyCart(cartItems);
     };
     getDataFromCart();
-
-  }, []); 
+  }, []);
 
   const priceQuantity = (price, quantity) => {
-    return price * quantity;
+    return Math.ceil(price * quantity);
   };
   const totalPrice = () => {
     return myCart.reduce(
@@ -67,7 +66,7 @@ const Cart = ({ isOpen, toggleCart }) => {
   };
 
   const navigateToCheckout = () => {
-    navigate("checkout");
+    navigate("checkout", { state: myCart });
   };
 
   return (
@@ -103,13 +102,17 @@ const Cart = ({ isOpen, toggleCart }) => {
                       <h3 className="cursor-pointer hover:text-primary font-semibold">
                         {item.title}
                       </h3>
-                      <p className="text-sm capitalize font-semibold ">{item.category}</p>
+                      <p className="text-sm capitalize font-semibold ">
+                        {item.category}
+                      </p>
                       <p className="text-sm line-clamp-2">{item.description}</p>
                     </div>
                     <div className="flex justify-between items-center w-full p-2">
                       <div className="w-4/5">
                         <p className="text-lg font-medium my-2">
-                          PKR { item.totalPrice || priceQuantity(item.price, item.quantity)}
+                          PKR{" "}
+                          {item.totalPrice ||
+                            priceQuantity(item.price, item.quantity)}
                         </p>
                       </div>
                       <div className="w-1/5 ">
