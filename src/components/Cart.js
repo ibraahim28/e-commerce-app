@@ -63,10 +63,34 @@ const Cart = ({ isOpen, toggleCart }) => {
           : cartItem
       )
     );
+
+    // Get the current cart items from localStorage and update the quantity
+    const localstorageItem = localStorage.getItem("checkoutQuantity");
+    const parsedLocalData = localstorageItem
+      ? JSON.parse(localstorageItem)
+      : [];
+
+    // Update the quantity of the item in the parsedLocalData array
+    const updatedData = parsedLocalData.map((cartItem) =>
+      cartItem.id === item.id
+        ? { ...cartItem, quantity: newQuantity }
+        : cartItem
+    );
+
+    // If the item doesn't exist in localStorage, add it
+    if (!updatedData.some((cartItem) => cartItem.id === item.id)) {
+      updatedData.push({ id: item.id, quantity: newQuantity });
+    }
+
+    // Save the updated cart data back to localStorage
+    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedData));
+
+    // Optionally, log to see if the cart is updated properly
+    console.log(updatedData);
   };
 
   const navigateToCheckout = () => {
-    navigate("checkout", { state: myCart });
+    navigate("checkout");
   };
 
   return (
