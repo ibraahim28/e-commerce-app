@@ -4,29 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const Card = ({ data }) => {
   const navigate = useNavigate();
-  // const [isInCart, setIsInCart] = useState(data.addedToCart);
-
-  // const addToCart = (item) => {
-  //   if (data.addedToCart) {
-    
-  //     setCart((prevCart) => {
-  //       const updatedCart = prevCart.filter(
-  //         (cartItem) => cartItem.id !== item.id
-  //       );
-  //       return updatedCart;
-  //     });
-    //   // setIsInCart(false);
-    //   data.addedToCart = false;
-    // } else {
-
-      
-  //     const newItem = { ...item, addedToCart: true };
-  //     setCart((prevCart) => [...prevCart, newItem]);
-  //     // setIsInCart(true);
-  //     data.addedToCart = true;
-
-  //   }
-  // };
 
   const navigateToProduct = (data) => {
     console.log("data",data);

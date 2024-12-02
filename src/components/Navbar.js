@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaCartShopping, FaHeart, FaUser } from "react-icons/fa6";
 import logo from "../img/logo.svg";
 import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import SearchBar from "./SearchBar";
 
 const Navbar = ({ toggleCart }) => {
   const { counter } = useSelector((s) => s);
-  console.log("counter", counter);
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = () => {
+    if (searching) setSearching(false);
+    else setSearching(true);
+  };
+
   return (
+  <div className="relative">
+    
     <header className="bg-primary text-white flex items-center justify-between px-10 py-8">
       <div>
         <img src={logo} alt="Logo" />
@@ -25,20 +34,22 @@ const Navbar = ({ toggleCart }) => {
       <div className="flex items-center text-xl gap-4">
         <div className="flex flex-col gap-4 cursor-pointer items-center">
           <div onClick={toggleCart} className="relative">
-          <FaCartShopping />
+            <FaCartShopping />
           </div>
-        <div className="bg-text-primary w-5 h-5 absolute top-4 rounded-full text-sm text-gray-200 flex items-center justify-center ">
-          <p>{counter.count}</p>
+          <div className="bg-text-primary w-5 h-5 absolute top-4 rounded-full text-sm text-gray-200 flex items-center justify-center ">
+            <p>{counter.count}</p>
+          </div>
         </div>
-         
-        </div>
-        <div className="flex items-center gap-4">
-        <button>
+        <div className="w-full flex items-center gap-4">
+          <button>
             <FaHeart />
           </button>
-          <button>
-            <FaSearch />
-          </button>
+          <div className="w-full">
+            {searching ? <SearchBar searching={searching} /> : ""}
+            <button onClick={handleSearch}>
+              <FaSearch />
+            </button>
+          </div>
           <div className="flex gap-2 items-center">
             <button>Login</button>
             <button>
@@ -48,7 +59,10 @@ const Navbar = ({ toggleCart }) => {
         </div>
       </div>
     </header>
+  </div>
   );
 };
 
 export default Navbar;
+
+
