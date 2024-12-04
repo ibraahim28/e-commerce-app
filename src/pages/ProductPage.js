@@ -40,7 +40,7 @@ const ProductPage = () => {
   return (
     <div className="min-h-screen bg-primary-beige flex justify-center items-center p-5">
       <div className="bg-white p-8 rounded-xl w-full max-w-4xl flex flex-col md:flex-row gap-10 shadow-md">
-        {/* Product Image */}
+        
         <div className="w-full md:w-1/2 flex justify-center items-center">
           <img
             className="w-full h-auto max-w-sm rounded-lg"
@@ -49,7 +49,7 @@ const ProductPage = () => {
           />
         </div>
 
-        {/* Product Details */}
+       
         <div className="w-full md:w-1/2 flex flex-col gap-6">
           <div>
             <p className="text-md font-medium text-primary uppercase tracking-wide">

@@ -8,72 +8,98 @@ import { useDispatch, useSelector } from "react-redux";
 import SkeletonLoader from "../components/loader/Loader";
 import { useLocation } from "react-router-dom";
 import { message } from "antd";
+import { fetchData } from "../utils/data/data";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
-  const { state } = useLocation();
-  console.log("state ==>", state);
+  const [loading, setLoading] = useState(true); // loading state for fetching data
   const { isLoading } = useSelector((v) => v.counter);
   const dispatch = useDispatch();
-  console.log(isLoading);
-
-  // useEffect(() => {
-  //   const cartIds = getProductsFromCart();
-
-  //   const filteredData = data.filter((item) => cartIds.includes(item.id));
-  //   setMyCart(filteredData);
-  // setloading(false)
-  // }, [data]);
-
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const API_DATA = await fetchData();
-  //     setData(API_DATA);
-
-  //   };
-  //   getData();
-  // }, []);
 
   useEffect(() => {
-    const getData = () => {
+    // Fetch the product data and cart items on mount
+    const getData = async () => {
       try {
-        setMyCart(state);
+        setLoading(true); // Start loading
+
+        // Fetch all the product data
+        const API_DATA = await fetchData();
+
+        // Get the cart product IDs from localStorage
+        const cartIds = getProductsFromCart();
+
+        // Get quantity details from localStorage (if exists)
+        const quantityData =
+          JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
+
+        // Filter API data to get the cart items based on cart IDs
+        const filteredCartData = API_DATA.filter((item) =>
+          cartIds.includes(item.id)
+        );
+
+        // Add quantity and totalPrice for each item
+        const updatedCart = filteredCartData.map((item) => {
+          const cartItem = quantityData.find((cart) => cart.id === item.id);
+          const quantity = cartItem ? cartItem.quantity : 1; // Default quantity is 1
+          return {
+            ...item,
+            quantity,
+            totalPrice: item.price * quantity, // Calculate total price
+          };
+        });
+
+        setMyCart(updatedCart);
       } catch (error) {
         console.error("Error fetching Cart Data:", error);
         message.error("Error fetching data");
       } finally {
-       
-        dispatch(updateLoader(false));
-        
+        setLoading(false); // Stop loading
+        dispatch(updateLoader(false)); // Update loader state if using Redux
       }
     };
 
     getData();
-  }, []);
+  }, [dispatch]);
 
   const removefromCart = (params) => {
-    const filteredState = state.filter((v) => v.id !== params.id);
+    const filteredState = myCart.filter((v) => v.id !== params.id);
     setMyCart(filteredState);
-    console.log("remove from cart from checkout", params.id);
 
-    const data = getProductsFromCart();
-    const filteredData = data.filter((v) => Number(v) !== Number(params.id));
+    // Remove the item from the cart in localStorage
+    const cartIds = getProductsFromCart();
+    const filteredData = cartIds.filter((v) => v !== params.id);
     addProductToCart(filteredData);
 
+    // Update the item quantity in localStorage
+    const updatedQuantityData =
+      JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
+    const updatedQuantity = updatedQuantityData.filter(
+      (v) => v.id !== params.id
+    );
+    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantity));
+
+    // Update cart counter in Redux (optional)
     dispatch(updateCounter("decrease"));
   };
 
-  const handleSubmit = () => {
-    message.success("Order Placed");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    message.success("Your order has been placed, the product is on it's way.");
+
+    localStorage.clear();
+
+    setMyCart([]);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 ">
           <div>
             <h2 className="text-2xl font-semibold mb-4">Checkout Form</h2>
             <form className="space-y-4">
+              {/* Full Name Field */}
               <div>
                 <label
                   htmlFor="fullName"
@@ -87,9 +113,11 @@ const CheckoutPage = () => {
                   name="fullName"
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="John Doe"
+                  required
                 />
               </div>
 
+              {/* Email Field */}
               <div>
                 <label
                   htmlFor="email"
@@ -102,42 +130,29 @@ const CheckoutPage = () => {
                   id="email"
                   name="email"
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="johndoe@example.com"
+                  placeholder="example@mail.com"
+                  required
                 />
               </div>
 
+              {/* Address Field */}
               <div>
                 <label
                   htmlFor="address"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Address
+                  Shipping Address
                 </label>
                 <textarea
                   id="address"
                   name="address"
-                  rows="3"
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="123 Main Street, Karachi"
-                />
+                  placeholder="Your shipping address"
+                  required
+                ></textarea>
               </div>
 
-              <div>
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  City
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Karachi"
-                />
-              </div>
-
+              {/* Phone Number Field */}
               <div>
                 <label
                   htmlFor="phone"
@@ -150,73 +165,85 @@ const CheckoutPage = () => {
                   id="phone"
                   name="phone"
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="03012345678"
+                  placeholder="Your phone number"
+                  required
                 />
               </div>
 
+              {/* Submit Button */}
               <button
+                onClick={(e) => {
+                  handleSubmit(e);
+                }}
                 type="submit"
-                onSubmit={handleSubmit}
                 className="w-full bg-indigo-500 text-white font-medium rounded-lg py-2 hover:bg-indigo-600"
               >
                 Place Order
               </button>
             </form>
+            <div></div>
           </div>
 
           <div>
             <h2 className="text-2xl font-semibold mb-4">Your Cart</h2>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px] w-full">
-              {isLoading ? (
+              {loading || isLoading ? (
                 <>
-                <SkeletonLoader
-                  width="90%"
-                  height="100px"
-                  borderRadius="10px"
-                />
-                <SkeletonLoader width="80%" height="20px" borderRadius="10px"  />
+                  <>
+                    <SkeletonLoader
+                      width="90%"
+                      height="100px"
+                      borderRadius="10px"
+                    />
+                    <SkeletonLoader
+                      width="70%"
+                      height="20px"
+                      borderRadius="10px"
+                    />
+                    <SkeletonLoader
+                      width="50%"
+                      height="20px"
+                      borderRadius="10px"
+                    />
+                  </>
                 </>
               ) : myCart.length > 0 ? (
                 myCart.map((item, index) => (
-                  <>
-                    <div
-                      key={index}
-                      className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-16 object-cover rounded-lg"
-                      />
-                      <div className="flex-1 mx-4">
-                        <p className="text-lg text-gray-700 font-bold">
-                          {item.title}
-                        </p>
-                        <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
-                          {item.description}
-                        </p>
-                        <div className="flex gap-4 items-center ">
-                          <p className="text-sm text-gray-700">
-                            Price: {item.price} PKR
-                          </p>
-                          <p className="text-sm text-gray-700">
-                            Quantity : {item.quantity}{" "}
-                          </p>
-                          <p className="text-sm text-gray-700">
-                            Total Price : {item.totalPrice}{" "}
-                          </p>
-                        </div>
-                      </div>
-                      <p
-                        onClick={() => {
-                          removefromCart(item);
-                        }}
-                        className="font-semibold text-2xl text-indigo-500 hover:text-red-400 cursor-pointer "
-                      >
-                        x
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1 mx-4">
+                      <p className="text-lg text-gray-700 font-bold">
+                        {item.title}
                       </p>
+                      <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
+                        {item.description}
+                      </p>
+                      <div className="flex gap-4 items-center">
+                        <p className="text-sm text-gray-700">
+                          Price: {item.price} PKR
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Quantity: {item.quantity}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Total Price: {item.totalPrice}
+                        </p>
+                      </div>
                     </div>
-                  </>
+                    <p
+                      onClick={() => removefromCart(item)}
+                      className="font-semibold text-2xl text-indigo-500 hover:text-red-400 cursor-pointer"
+                    >
+                      x
+                    </p>
+                  </div>
                 ))
               ) : (
                 <p className="text-center text-gray-400">Your cart is empty.</p>
