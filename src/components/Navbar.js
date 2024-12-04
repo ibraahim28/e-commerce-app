@@ -9,6 +9,7 @@ const Navbar = ({ toggleCart }) => {
   const { counter } = useSelector((s) => s);
   const [searching, setSearching] = useState(false);
 
+
   const handleSearch = () => {
     if (searching) setSearching(false);
     else setSearching(true);

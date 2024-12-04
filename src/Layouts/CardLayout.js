@@ -9,8 +9,11 @@ const CardLayout = () => {
   const [products, setProducts] = useState([]);
   const [filterCategory, setFilterCategory] = useState(["All Products"]);
   const [activeCategory, setActiveCategory] = useState("All Products");
+  const [productSearched, setProductSearched] = useState([]);
   const { isLoading } = useSelector((v) => v.counter);
+  const { searchTerm } = useSelector((v) => v.counter);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const getData = async () => {
       const API_DATA = await fetchData();
@@ -32,6 +35,39 @@ const CardLayout = () => {
     ];
     setFilterCategory(allCategories);
   }, [products]);
+
+  // useEffect(() => {
+  //   if (searchTerm.trim() !== "") {
+  //     setActiveCategory('All Products')
+  //     const searchedProducts = products.filter((product) =>
+  //       product.title.toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  //     setProductSearched(searchedProducts);
+  //     console.log("productSearched==>>", productSearched)
+  //   }else{
+  //     setProductSearched(products)
+  //   }
+  // }, [searchTerm, products, productSearched]);
+
+  useEffect(() => {
+    let filteredProducts = products;
+
+    // Filter by search term
+    if (searchTerm.trim() !== "") {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by active category
+    if (activeCategory !== "All Products") {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.category === activeCategory
+      );
+    }
+
+    setProductSearched(filteredProducts);
+  }, [searchTerm, activeCategory, products]); // Dependencies include all relevant states
 
   return (
     <div className="mx-20">
@@ -66,33 +102,21 @@ const CardLayout = () => {
 
       <div className="flex w-screen gap-5 py-5 items-center flex-wrap">
         {!isLoading
-          ? activeCategory === "All Products"
-            ? products.map((item, index) => <Card key={index} data={item} />)
-            : products.map((product, index) => {
-                return product.category === activeCategory ? (
-                  <Card key={index} data={product} />
-                ) : (
-                  ""
-                );
-              })
-          : Array(8) 
+          ? productSearched?.length > 0
+            ? productSearched.map((item) => <Card key={item.id} data={item} />)
+            : activeCategory === "All Products"
+            ? products.map((item) => <Card key={item.id} data={item} />)
+            : products
+                .filter((product) => product.category === activeCategory)
+                .map((product) => <Card key={product.id} data={product} />)
+          : Array(8)
               .fill(null)
               .map((_, index) => (
-                <div className="flex gap-3 flex-col w-[20%]">
-                  <SkeletonLoader height="250px" /> 
-                  <SkeletonLoader
-                    width="80%%"
-                    height="20px"
-                    className="mt-3"
-                  />{" "}
-                  
-                  <SkeletonLoader
-                    width="60%"
-                    height="15px"
-                    className="mt-2"
-                  />{" "}
-                  
-                </div >
+                <div key={index} className="flex gap-3 flex-col w-[20%]">
+                  <SkeletonLoader height="250px" />
+                  <SkeletonLoader width="80%" height="20px" className="mt-3" />
+                  <SkeletonLoader width="60%" height="15px" className="mt-2" />
+                </div>
               ))}
       </div>
     </div>

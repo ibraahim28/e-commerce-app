@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import image from "../img/her-fruits.webp";
 import { fetchData } from "../utils/data/data";
 import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +26,7 @@ const Cart = ({ isOpen, toggleCart }) => {
   }, []);
 
   const priceQuantity = (price, quantity) => {
-    return Math.ceil(price * quantity);
+    return Math.floor(price * quantity);
   };
   const totalPrice = () => {
     return myCart.reduce(

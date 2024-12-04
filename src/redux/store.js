@@ -4,7 +4,6 @@ import counter from "./reducer";
 const store = configureStore({
   reducer: {
     counter,
-    
   },
 });
 
