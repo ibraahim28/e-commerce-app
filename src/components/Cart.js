@@ -161,10 +161,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                       </button>
                     </div>
                   </div>
-                ))}
-                <div>
-                  <h2></h2>
-                </div>
+              ))}
               </div>
               <div className="flex flex-col gap-3 p-2 ">
                 <div className="flex justify-between">

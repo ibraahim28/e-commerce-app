@@ -26,7 +26,7 @@ const CardLayout = () => {
       }
     };
     getData();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const allCategories = [
