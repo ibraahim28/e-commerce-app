@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
   Route,
-  Link,
-  createRoutesFromChildren,
   createRoutesFromElements,
 } from "react-router-dom";
 import Layout from "../Layouts/Layout";
@@ -18,6 +15,15 @@ const AppRouter = () => {
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
   };
+
+  // useEffect(()=>{
+  //   const cartProducts = getProductsFromCart();
+
+  //   console.log(cartProducts)
+
+  //   dispatch(updateCounter(cartProducts.length))
+
+  // },[])
 
   const router = createBrowserRouter(
     createRoutesFromElements(

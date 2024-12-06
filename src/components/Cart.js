@@ -30,7 +30,7 @@ const Cart = ({ isOpen, toggleCart }) => {
   };
   const totalPrice = () => {
     return myCart.reduce(
-      (total, v) => total + priceQuantity(v.price, v.quantity),
+      (total, v) => total + priceQuantity(v.total, v.quantity),
       0
     );
   };
@@ -169,10 +169,10 @@ const Cart = ({ isOpen, toggleCart }) => {
               <div className="flex flex-col gap-3 p-2 ">
                 <div className="flex justify-between">
                   <div>
-                    <h2 className="font-medium text-xl">Your Total</h2>
+                    <h2 className="font-medium text-lg">Your Total</h2>
                   </div>
                   <div>
-                    <h2 className="font-medium text-xl">{totalPrice()}</h2>
+                    <h2 className="font-medium text-lg">{`${totalPrice()}-pkr`}</h2>
                   </div>
                 </div>
                 <div>

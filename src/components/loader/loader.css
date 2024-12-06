@@ -1,22 +1,18 @@
-/* Darker Skeleton Loader CSS */
 .skeleton-loader {
-    background: linear-gradient(
-      90deg,
-      rgba(75, 85, 99, 1) 25%,   /* Dark Gray */
-      rgba(107, 114, 128, 1) 50%, /* Mid Gray */
-      rgba(75, 85, 99, 1) 75%    /* Dark Gray */
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite ease-in-out;
+  background: #e0e0e5; /* Slightly darker background for better visibility */
+  box-shadow: 
+    6px 6px 15px rgba(0, 0, 0, 0.1), /* Darker shadow for depth */
+    -6px -6px 15px rgba(255, 255, 255, 0.7); /* Lighter shadow for highlight */
+  animation: shimmer 1.5s infinite ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100%;
   }
-  
-  /* Shimmer Animation */
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+  100% {
+    background-position: 100%;
   }
-  
+}

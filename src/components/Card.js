@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import image from "../img/her-fruits.webp";
+import React from "react";
+
 import { useNavigate } from "react-router-dom";
 
 const Card = ({ data }) => {

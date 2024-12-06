@@ -6,7 +6,6 @@ import {
 import { updateCounter, updateLoader } from "../redux/reducer";
 import { useDispatch, useSelector } from "react-redux";
 import SkeletonLoader from "../components/loader/Loader";
-import { useLocation } from "react-router-dom";
 import { message } from "antd";
 import { fetchData } from "../utils/data/data";
 

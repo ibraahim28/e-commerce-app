@@ -1,8 +1,11 @@
 import React from "react";
-import './loader.css'
+import "./loader.css";
 
-
-const SkeletonLoader = ({ width = "100%", height = "20px", borderRadius = "8px" }) => {
+const SkeletonLoader = ({
+  width = "100%",
+  height = "20px",
+  borderRadius = "8px",
+}) => {
   return (
     <div
       className="skeleton-loader mb-3"

@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import Navbar from "../components/Navbar";
+import React from "react";
 import HeroSection from "../components/HeroSection";
-import Card from "../components/Card";
 import CardLayout from "../Layouts/CardLayout";
 import Cart from "../components/Cart";
 

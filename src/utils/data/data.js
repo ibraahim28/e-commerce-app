@@ -252,5 +252,6 @@ export const fetchData = async () => {
     const data = await response.data;
     return data;
   } catch (err) {
+    console.log(err)
   }
 };
