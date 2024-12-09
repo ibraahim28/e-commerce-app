@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -9,21 +9,25 @@ import Layout from "../Layouts/Layout";
 import Home from "../pages/Home";
 import ProductPage from "../pages/ProductPage";
 import CheckoutPage from "../pages/CheckoutPage";
+import { getProductsFromCart } from "../utils/localStorage";
+import { updateCounter } from "../redux/reducer";
+import { useDispatch } from "react-redux";
 
 const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const dispatch = useDispatch();
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
   };
 
-  // useEffect(()=>{
-  //   const cartProducts = getProductsFromCart();
+  useEffect(()=>{
+    const cartProducts = getProductsFromCart();
 
-  //   console.log(cartProducts)
+    console.log(cartProducts)
 
-  //   dispatch(updateCounter(cartProducts.length))
+    dispatch(updateCounter(cartProducts.length))
 
-  // },[])
+  },[])
 
   const router = createBrowserRouter(
     createRoutesFromElements(

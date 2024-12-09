@@ -9,8 +9,13 @@ const itemCounter = createSlice({
   },
   reducers: {
     updateCounter: (state, action) => {
-      if (action.payload === "increase") state.count++;
-      else state.count--;
+      if (typeof action.payload === "number") {
+        state.count = action.payload;
+      } else if (state.count === " increase") {
+        state.count++;
+      } else if (action.payload === "decrease") {
+        state.count--;
+      }
       return state;
     },
     updateLoader: (state, action) => {

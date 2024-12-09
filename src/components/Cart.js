@@ -26,15 +26,16 @@ const Cart = ({ isOpen, toggleCart }) => {
   }, []);
 
   const priceQuantity = (price, quantity) => {
-    return Math.floor(price * quantity);
+    return price * quantity;
   };
   const totalPrice = () => {
-    return myCart.reduce(
-      (total, v) => total + priceQuantity(v.total, v.quantity),
-      0
-    );
+    return myCart.reduce((total, v) => {
+      const itemPrice = Number(v.total) || 0; 
+      const itemQuantity = Number(v.quantity) || 0; 
+      return total + priceQuantity(itemPrice, itemQuantity);
+    }, 0);
   };
-
+  
   const removeFromCart = (params) => {
     setMyCart((prevCart = []) =>
       prevCart.filter((cartItem) => cartItem.id !== params.id)

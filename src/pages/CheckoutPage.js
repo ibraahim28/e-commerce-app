@@ -52,8 +52,8 @@ const CheckoutPage = () => {
         console.error("Error fetching Cart Data:", error);
         message.error("Error fetching data");
       } finally {
-        setLoading(false); // Stop loading
-        dispatch(updateLoader(false)); // Update loader state if using Redux
+        setLoading(false);
+        dispatch(updateLoader(false));
       }
     };
 
@@ -64,12 +64,10 @@ const CheckoutPage = () => {
     const filteredState = myCart.filter((v) => v.id !== params.id);
     setMyCart(filteredState);
 
-    // Remove the item from the cart in localStorage
     const cartIds = getProductsFromCart();
     const filteredData = cartIds.filter((v) => v !== params.id);
     addProductToCart(filteredData);
 
-    // Update the item quantity in localStorage
     const updatedQuantityData =
       JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
     const updatedQuantity = updatedQuantityData.filter(
@@ -77,7 +75,6 @@ const CheckoutPage = () => {
     );
     localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantity));
 
-    // Update cart counter in Redux (optional)
     dispatch(updateCounter("decrease"));
   };
 
@@ -98,7 +95,6 @@ const CheckoutPage = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Checkout Form</h2>
             <form className="space-y-4">
-              {/* Full Name Field */}
               <div>
                 <label
                   htmlFor="fullName"
@@ -232,7 +228,7 @@ const CheckoutPage = () => {
                           Quantity: {item.quantity}
                         </p>
                         <p className="text-sm text-gray-700">
-                          Total Price: {item.totalPrice}
+                          Total Price: {item.totalPrice} PKR
                         </p>
                       </div>
                     </div>
