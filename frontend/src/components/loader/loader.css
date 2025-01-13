@@ -1,0 +1,18 @@
+.skeleton-loader {
+  background: #e0e0e5; /* Slightly darker background for better visibility */
+  box-shadow: 
+    6px 6px 15px rgba(0, 0, 0, 0.1), /* Darker shadow for depth */
+    -6px -6px 15px rgba(255, 255, 255, 0.7); /* Lighter shadow for highlight */
+  animation: shimmer 1.5s infinite ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100%;
+  }
+  100% {
+    background-position: 100%;
+  }
+}
