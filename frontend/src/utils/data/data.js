@@ -241,17 +241,21 @@
 //     }
 //   ];
 
+//   export default groceryItems;
+
 import axios from "axios";
 import { BASE_URL } from "../../api/config";
 
-//   export default groceryItems;
-
 export const fetchData = async () => {
   try {
-    const response = await axios.get(BASE_URL);
-    const data = await response.data;
-    return data;
+    const  response = await axios.get(`${BASE_URL}/product/fetch`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+      },
+    });
+    const finalData = await response.data.data;
+    return finalData;
   } catch (err) {
-    console.log(err)
+    console.log(err.response.data);
   }
 };
