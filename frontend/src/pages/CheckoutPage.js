@@ -11,9 +11,16 @@ import { fetchData } from "../utils/data/data";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
-  const [loading, setLoading] = useState(true); // loading state for fetching data
+  const [loading, setLoading] = useState(true);
   const { isLoading } = useSelector((v) => v.counter);
   const dispatch = useDispatch();
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    address: "",
+    phone: "",
+  });
 
   useEffect(() => {
     // Fetch the product data and cart items on mount
@@ -33,12 +40,12 @@ const CheckoutPage = () => {
 
         // Filter API data to get the cart items based on cart IDs
         const filteredCartData = API_DATA.filter((item) =>
-          cartIds.includes(item.id)
+          cartIds.includes(item._id)
         );
 
         // Add quantity and totalPrice for each item
         const updatedCart = filteredCartData.map((item) => {
-          const cartItem = quantityData.find((cart) => cart.id === item.id);
+          const cartItem = quantityData.find((cart) => cart._id === item._id);
           const quantity = cartItem ? cartItem.quantity : 1; // Default quantity is 1
           return {
             ...item,
@@ -60,32 +67,59 @@ const CheckoutPage = () => {
     getData();
   }, [dispatch]);
 
-  const removefromCart = (params) => {
-    const filteredState = myCart.filter((v) => v.id !== params.id);
-    setMyCart(filteredState);
-
-    const cartIds = getProductsFromCart();
-    const filteredData = cartIds.filter((v) => v !== params.id);
-    addProductToCart(filteredData);
-
-    const updatedQuantityData =
-      JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
-    const updatedQuantity = updatedQuantityData.filter(
-      (v) => v.id !== params.id
-    );
-    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantity));
-
-    dispatch(updateCounter("decrease"));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    message.success("Your order has been placed, the product is on it's way.");
+    // Validate form data
+    const { fullName, email, address, phone } = formData;
+    if (!fullName || !email || !address || !phone) {
+      message.error("Please fill in all the required fields.");
+      return; // Prevent form submission if any field is missing
+    }
 
-    localStorage.clear();
+    message.success("Your order has been placed, the product is on its way.");
 
+    // Clear cart data from localStorage
+    localStorage.removeItem("cart__data");
+    localStorage.removeItem("checkoutQuantity");
+
+    // Reset the cart state
     setMyCart([]);
+
+    // Reset cart count in Redux store
+    dispatch(updateCounter(0));
+  };
+
+  // Remove from cart function
+  const removefromCart = (itemToRemove) => {
+    // Filter out the item to be removed from the cart state
+    const updatedCart = myCart.filter((item) => item._id !== itemToRemove._id);
+    setMyCart(updatedCart);
+
+    // Get the cart IDs from localStorage
+    const cartIds = getProductsFromCart();
+
+    // Remove the item from cart IDs and update localStorage
+    const updatedCartIds = cartIds.filter((id) => id !== itemToRemove._id);
+    addProductToCart(updatedCartIds);
+
+    // Get the existing quantities from localStorage
+    const quantityData = JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
+    
+    // Remove the item from the quantities and update localStorage
+    const updatedQuantityData = quantityData.filter((item) => item._id !== itemToRemove._id);
+    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantityData));
+
+    // Update the Redux counter to decrease the cart count
+    dispatch(updateCounter("decrease"));
   };
 
   return (
@@ -94,7 +128,7 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 ">
           <div>
             <h2 className="text-2xl font-semibold mb-4">Checkout Form</h2>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label
                   htmlFor="fullName"
@@ -109,6 +143,8 @@ const CheckoutPage = () => {
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="John Doe"
                   required
+                  value={formData.fullName}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -127,6 +163,8 @@ const CheckoutPage = () => {
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="example@mail.com"
                   required
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -144,6 +182,8 @@ const CheckoutPage = () => {
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Your shipping address"
                   required
+                  value={formData.address}
+                  onChange={handleChange}
                 ></textarea>
               </div>
 
@@ -162,21 +202,19 @@ const CheckoutPage = () => {
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Your phone number"
                   required
+                  value={formData.phone}
+                  onChange={handleChange}
                 />
               </div>
 
               {/* Submit Button */}
               <button
-                onClick={(e) => {
-                  handleSubmit(e);
-                }}
                 type="submit"
                 className="w-full bg-indigo-500 text-white font-medium rounded-lg py-2 hover:bg-indigo-600"
               >
                 Place Order
               </button>
             </form>
-            <div></div>
           </div>
 
           <div>
@@ -184,23 +222,21 @@ const CheckoutPage = () => {
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4 overflow-y-auto max-h-[500px] w-full">
               {loading || isLoading ? (
                 <>
-                  <>
-                    <SkeletonLoader
-                      width="90%"
-                      height="100px"
-                      borderRadius="10px"
-                    />
-                    <SkeletonLoader
-                      width="70%"
-                      height="20px"
-                      borderRadius="10px"
-                    />
-                    <SkeletonLoader
-                      width="50%"
-                      height="20px"
-                      borderRadius="10px"
-                    />
-                  </>
+                  <SkeletonLoader
+                    width="90%"
+                    height="100px"
+                    borderRadius="10px"
+                  />
+                  <SkeletonLoader
+                    width="70%"
+                    height="20px"
+                    borderRadius="10px"
+                  />
+                  <SkeletonLoader
+                    width="50%"
+                    height="20px"
+                    borderRadius="10px"
+                  />
                 </>
               ) : myCart.length > 0 ? (
                 myCart.map((item, index) => (
@@ -210,12 +246,12 @@ const CheckoutPage = () => {
                   >
                     <img
                       src={item.image}
-                      alt={item.title}
+                      alt={item.name}
                       className="w-16 object-cover rounded-lg"
                     />
                     <div className="flex-1 mx-4">
                       <p className="text-lg text-gray-700 font-bold">
-                        {item.title}
+                        {item.name}
                       </p>
                       <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
                         {item.description}

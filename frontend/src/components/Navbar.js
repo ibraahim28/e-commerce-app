@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { FaCartShopping, FaHeart, FaUser } from "react-icons/fa6";
-import logo from "../img/logo.svg";
+import logo from "../img/logo.png";
 import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import SearchBar from "./SearchBar";
+import { getUserData } from "../utils/auth/auth";
 
 const Navbar = ({ toggleCart }) => {
   const { counter } = useSelector((s) => s);
@@ -13,6 +14,8 @@ const Navbar = ({ toggleCart }) => {
     if (searching) setSearching(false);
     else setSearching(true);
   };
+
+  const user = getUserData();
 
   return (
     <div className="relative">
@@ -49,11 +52,9 @@ const Navbar = ({ toggleCart }) => {
                 <FaSearch />
               </button>
             </div>
-            <div className="flex gap-2 items-center">
-              <button className="text-white hover:text-fresh-green transition-all">Login</button>
-              <button className="text-white hover:text-fresh-green transition-all">
-                <FaUser />
-              </button>
+            <div className="flex gap-2 flex-col items-center text-white hover:text-fresh-green">
+              <button className="transition-all"><FaUser /></button>
+              <button className="text-sm transition-all">{user ? (user.username) : 'Login'}</button>
             </div>
           </div>
         </div>

@@ -15,16 +15,16 @@ const Cart = ({ isOpen, toggleCart }) => {
       try {
         const API_DATA = await fetchData();
         console.log("API_DATA:", API_DATA);
-    
+
         if (Array.isArray(API_DATA)) {
           const cartIds = getProductsFromCart();
-          const cartItems = API_DATA.filter((item) => cartIds.includes(item.id));
-    
+          const cartItems = API_DATA.filter((item) => cartIds.includes(item._id));
+
           cartItems.forEach((v) => {
             v.quantity = 1;
             v.totalPrice = v.price * v.quantity;
           });
-    
+
           setMyCart(cartItems);
         } else {
           console.error("API_DATA is not an array:", API_DATA);
@@ -33,31 +33,35 @@ const Cart = ({ isOpen, toggleCart }) => {
         console.error("Error fetching data:", error);
       }
     };
-      
+
     getDataFromCart();
   }, []);
 
-  const priceQuantity = (price, quantity) => price * quantity;
-
-  const totalPrice = () => {
-    return myCart.reduce((total, v) => {
-      const itemPrice = Number(v.total) || 0;
-      const itemQuantity = Number(v.quantity) || 0;
-      return total + priceQuantity(itemPrice, itemQuantity);
-    }, 0);
+  // Function to calculate the price of each item (rounded to 2 decimal places)
+  const priceQuantity = (price, quantity) => {
+    return (price * quantity).toFixed(2); // Round to 2 decimal places
   };
 
+  // Function to calculate the total price of all items (rounded to 2 decimal places)
+  const totalPrice = () => {
+    return myCart.reduce((total, v) => {
+      return total + parseFloat(priceQuantity(v.price, v.quantity)); // Add each item's total price
+    }, 0).toFixed(2); // Round the final total to 2 decimal places
+  };
+
+  // Function to remove an item from the cart
   const removeFromCart = (params) => {
     setMyCart((prevCart = []) =>
-      prevCart.filter((cartItem) => cartItem.id !== params.id)
+      prevCart.filter((cartItem) => cartItem._id !== params._id)
     );
 
     const data = getProductsFromCart();
-    const filteredData = data.filter((v) => Number(v) !== Number(params.id));
+    const filteredData = data.filter((v) => v !== params._id);
     addProductToCart(filteredData);
     dispatch(updateCounter("decrease"));
   };
 
+  // Function to handle quantity change
   const handleQuantity = (item, e) => {
     let newQuantity = Number(e.target.value);
 
@@ -65,7 +69,7 @@ const Cart = ({ isOpen, toggleCart }) => {
 
     setMyCart((prevCart) =>
       prevCart.map((cartItem) =>
-        cartItem.id === item.id
+        cartItem._id === item._id
           ? {
               ...cartItem,
               quantity: newQuantity,
@@ -81,13 +85,13 @@ const Cart = ({ isOpen, toggleCart }) => {
       : [];
 
     const updatedData = parsedLocalData.map((cartItem) =>
-      cartItem.id === item.id
+      cartItem._id === item._id
         ? { ...cartItem, quantity: newQuantity }
         : cartItem
     );
 
-    if (!updatedData.some((cartItem) => cartItem.id === item.id)) {
-      updatedData.push({ id: item.id, quantity: newQuantity });
+    if (!updatedData.some((cartItem) => cartItem._id === item._id)) {
+      updatedData.push({ _id: item._id, quantity: newQuantity });
     }
 
     localStorage.setItem("checkoutQuantity", JSON.stringify(updatedData));
@@ -122,13 +126,13 @@ const Cart = ({ isOpen, toggleCart }) => {
                   >
                     <div className="flex items-center">
                       <img
-                        src={item?.image}
+                        src={item?.images[0]?.url || "default-image-url"}
                         alt={item.title}
                         className="h-20 w-20 object-cover rounded-md border border-gray-300"
                       />
                       <div className="ml-4">
                         <h3 className="text-lg font-semibold text-dark-charcoal hover:text-fresh-green cursor-pointer">
-                          {item.title}
+                          {item.name}
                         </h3>
                         <p className="text-sm text-gray-500 capitalize">
                           {item.category}
@@ -149,6 +153,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                         className="w-16 border px-2 py-1 rounded-md"
                         type="number"
                         placeholder="1"
+                        value={item.quantity}
                         onChange={(e) => handleQuantity(item, e)}
                       />
                     </div>
@@ -169,7 +174,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                     Your Total
                   </h2>
                   <h2 className="text-lg font-medium text-dark-charcoal">
-                    {`${totalPrice()} PKR`}
+                    {totalPrice()} PKR
                   </h2>
                 </div>
                 <button

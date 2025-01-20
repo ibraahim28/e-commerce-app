@@ -43,7 +43,7 @@ const CardLayout = () => {
     // Filter by search term
     if (searchTerm.trim() !== "") {
       filteredProducts = filteredProducts.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
   

@@ -253,6 +253,7 @@ export const fetchData = async () => {
         Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
       },
     });
+    console.log("response", response)
     const finalData = await response.data.data;
     return finalData;
   } catch (err) {
