@@ -24,6 +24,16 @@ const orderSchema = new mongoose.Schema({
          total : {
             type : Number,
             required : true
+         },
+         size : {
+            type : String,
+            enum : ['s','m','l','xl','xxl'],
+            default : [],
+         },
+         color : {
+            type : String,
+            enum : ['red','blue','yellow','white'],
+            default : []
          }
       }
    ],

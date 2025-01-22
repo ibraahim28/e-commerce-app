@@ -80,9 +80,9 @@ const Cart = ({ isOpen, toggleCart }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 max-h-full overflow-y-auto z-10 bg-soft-beige shadow-lg transition-transform duration-300 
+      className={`fixed top-0 right-0 max-h-full overflow-y-auto z-10 w-full sm:w-1/3 bg-soft-beige shadow-lg transition-transform duration-300 
         ${isOpen ? "translate-x-0" : "translate-x-full"} 
-        w-full sm:w-1/3`}
+        `}
     >
       <div className="flex flex-col h-full p-4">
         {/* Header */}

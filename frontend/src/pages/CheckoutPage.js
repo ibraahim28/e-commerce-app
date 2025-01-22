@@ -13,6 +13,7 @@
     const [myCart, setMyCart] = useState([]);
     const [loading, setLoading] = useState(true); 
     const { isLoading } = useSelector((v) => v.counter);
+    const [formData, setFormData] = useState({fullName : '',})
     const dispatch = useDispatch();
 
     useEffect(() => {
