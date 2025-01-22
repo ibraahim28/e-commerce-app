@@ -212,12 +212,12 @@
                     >
                       <img
                         src={item.image}
-                        alt={item.title}
+                        alt={item.name}
                         className="w-16 object-cover rounded-lg"
                       />
                       <div className="flex-1 mx-4">
                         <p className="text-lg text-gray-700 font-bold">
-                          {item.title}
+                          {item.name}
                         </p>
                         <p className="text-sm text-gray-500 line-clamp-3 border-b-2 mb-2 pb-1">
                           {item.description}

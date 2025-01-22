@@ -14,8 +14,6 @@ const Cart = ({ isOpen, toggleCart }) => {
     const getDataFromCart = async () => {
       try {
         const API_DATA = await fetchData();
-        console.log("API_DATA:", API_DATA);
-
         if (Array.isArray(API_DATA)) {
           const cartIds = getProductsFromCart();
           const cartItems = API_DATA.filter((item) =>
@@ -76,34 +74,17 @@ const Cart = ({ isOpen, toggleCart }) => {
           : cartItem
       )
     );
-
-    const localStorageItem = localStorage.getItem("checkoutQuantity");
-    const parsedLocalData = localStorageItem
-      ? JSON.parse(localStorageItem)
-      : [];
-
-    const updatedData = parsedLocalData.map((cartItem) =>
-      cartItem._id === item._id
-        ? { ...cartItem, quantity: newQuantity }
-        : cartItem
-    );
-
-    if (!updatedData.some((cartItem) => cartItem._id === item._id)) {
-      updatedData.push({ _id: item._id, quantity: newQuantity });
-    }
-
-    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedData));
   };
 
   const navigateToCheckout = () => navigate("checkout");
 
   return (
     <div
-      className={`overflow-y-auto p-4 fixed top-0 right-0 h-full w-1/4 z-10 bg-soft-beige shadow-lg transition-transform duration-300 ${
-        isOpen ? "translate-x-0" : "translate-x-full"
-      }`}
+      className={`fixed top-0 right-0 max-h-full overflow-y-auto z-10 bg-soft-beige shadow-lg transition-transform duration-300 
+        ${isOpen ? "translate-x-0" : "translate-x-full"} 
+        w-full sm:w-1/3`}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full p-4">
         {/* Header */}
         <button
           onClick={toggleCart}
@@ -122,13 +103,13 @@ const Cart = ({ isOpen, toggleCart }) => {
                     key={index}
                     className="py-4 flex flex-col gap-3 bg-white rounded-md shadow-md p-4"
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-4">
                       <img
                         src={item?.image}
                         alt={item.title}
-                        className="h-20 w-20 object-cover rounded-md border border-gray-300"
+                        className="h-20 w-20 sm:h-24 sm:w-24 object-cover rounded-md border border-gray-300"
                       />
-                      <div className="ml-4">
+                      <div className="flex-1">
                         <h3 className="text-lg font-semibold text-dark-charcoal hover:text-fresh-green cursor-pointer">
                           {item.title}
                         </h3>
