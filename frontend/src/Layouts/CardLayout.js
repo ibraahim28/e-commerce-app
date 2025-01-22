@@ -24,11 +24,11 @@ const CardLayout = () => {
   
   useEffect(() => {
     const getData = async () => {
-      dispatch(updateLoader(true));  // Set loading to true when fetching data
+      dispatch(updateLoader(true));  
       const API_DATA = await fetchData();
       if (API_DATA) {
-        setProducts(API_DATA);  // Update products with the fetched data
-        dispatch(updateLoader(false));  // Set loading to false after data is fetched
+        setProducts(API_DATA);  
+        dispatch(updateLoader(false));  
       } else {
         console.log("Error fetching data");
         dispatch(updateLoader(false));
@@ -43,7 +43,7 @@ const CardLayout = () => {
     // Filter by search term
     if (searchTerm.trim() !== "") {
       filteredProducts = filteredProducts.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
   

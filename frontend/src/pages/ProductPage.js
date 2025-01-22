@@ -49,8 +49,8 @@ const ProductPage = () => {
         <div className="w-full md:w-1/2 flex justify-center items-center mb-6 md:mb-0">
           <img
             className="w-full h-auto max-w-sm rounded-lg transform transition-transform duration-500 hover:scale-110"
-            src={state?.images[0].url}
-            alt={state?.images[0].altText}
+            src={state?.images[0]?.url}
+            alt={state?.images[0]?.altText}
           />
         </div>
 
