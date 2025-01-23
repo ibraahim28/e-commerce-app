@@ -2,7 +2,7 @@ const order = require("../models/orderModel");
 const { findByIdAndDelete } = require("../models/productModel");
 
 const getAllOrders = async (req, res) => {
-  const orders = await order.find();
+  const orders = await order.find({});
   res.status(200).send({ success: true, data: orders });
 };
 

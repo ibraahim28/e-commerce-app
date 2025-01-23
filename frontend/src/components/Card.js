@@ -10,7 +10,7 @@ const Card = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3 border rounded-lg cursor-pointer shadow-lg shadow-gray-300 hover:shadow-fresh-green transition-all duration-300 w-full ">
+    <div className="flex flex-col gap-2 border rounded-lg cursor-pointer shadow-lg shadow-gray-300 hover:shadow-fresh-green transition-all duration-300 w-full ">
       <div className="w-full p-4">
         <img
           className="w-full cursor-pointer aspect-square hover:scale-105 transition-all duration-300 rounded-lg"
