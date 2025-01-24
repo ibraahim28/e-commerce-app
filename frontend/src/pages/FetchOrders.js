@@ -6,48 +6,53 @@ import { getToken } from "../utils/auth/auth";
 
 const FetchOrders = () => {
   const [filterOpen, setFilterOpen] = useState(false);
-  const [err, setErr] = useState(null)
-  const dummyOrders = [
-    {
-      id: "ORD12345",
-      customer: "John Doe",
-      total: "$120",
-      date: "2025-01-23",
-      status: "Pending",
-      payment: "COD",
-    },
-    {
-      id: "ORD12346",
-      customer: "Jane Smith",
-      total: "$85",
-      date: "2025-01-22",
-      status: "Completed",
-      payment: "Credit Card",
-    },
-    {
-      id: "ORD12347",
-      customer: "Mark Taylor",
-      total: "$60",
-      date: "2025-01-21",
-      status: "Shipped",
-      payment: "COD",
-    },
-  ];
+  const [err, setErr] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState({}); // Store customer data by ID
 
-  useEffect(()=>{
-    try {
-      const fetchOrders = async ()=>{
-        const response = await axios.get(`${BASE_URL}/order/fetch`, {headers : {
-          Authorization : `Bearer ${getToken()}`
-        }})
-        const orders = response.data.data;
+  useEffect(() => {
+    const fetchOrdersAndCustomers = async () => {
+      try {
+        // Fetch Orders
+        const response = await axios.get(`${BASE_URL}/order/fetch`, {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
+        const fetchedOrders = response.data.data;
+        setOrders(fetchedOrders);
+
+        // Extract unique customer IDs from orders
+        const customerIds = [
+          ...new Set(fetchedOrders.map((order) => order.userId)),
+        ];
+
+        // Fetch all customer data in parallel
+        const customerResponses = await Promise.all(
+          customerIds.map((id) =>
+            axios.get(`${BASE_URL}/user/fetch/${id}`, {
+              headers: { Authorization: `Bearer ${getToken()}` },
+            })
+          )
+        );
+
+        // Map customer data by ID for quick lookup
+        const customerData = {};
+        customerResponses.forEach((res) => {
+          customerData[res.data.data._id] = res.data.data.username;
+        });
+
+        setCustomers(customerData);
+      } catch (error) {
+        console.error("Error fetching orders or customers:", error);
+        
+        setErr(error?.response?.data?.message || "Something went wrong");
       }
-      fetchOrders();
-    } catch (error) {
-      setErr(error?.response?.data?.message)
-    }
-  },[])
-  
+    };
+
+    fetchOrdersAndCustomers();
+  }, []); 
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header Section */}
@@ -61,7 +66,7 @@ const FetchOrders = () => {
           Filters
         </button>
       </header>
-
+      {err && (<p>{err}</p>)}
       {/* Filters Section */}
       {filterOpen && (
         <div className="bg-white p-4 shadow-md rounded-lg mb-6">
@@ -131,20 +136,19 @@ const FetchOrders = () => {
               <th className="px-6 py-4">Total</th>
               <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Payment</th>
               <th className="px-6 py-4 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {dummyOrders.map((order) => (
+            {orders.map((order) => (
               <tr
-                key={order.id}
+                key={order._id}
                 className="hover:bg-gray-100 transition-all border-b"
               >
-                <td className="px-6 py-4">{order.id}</td>
-                <td className="px-6 py-4">{order.customer}</td>
-                <td className="px-6 py-4">{order.total}</td>
-                <td className="px-6 py-4">{order.date}</td>
+                <td className="px-6 py-4">{order._id}</td>
+                <td className="px-6 py-4">{customers[order.userId] || "Loading..."}</td>
+                <td className="px-6 py-4">{order.totalAmount}</td>
+                <td className="px-6 py-4">{order.orderDate}</td>
                 <td className="px-6 py-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${
@@ -158,7 +162,6 @@ const FetchOrders = () => {
                     {order.status}
                   </span>
                 </td>
-                <td className="px-6 py-4">{order.payment}</td>
                 <td className="px-6 py-4 text-center">
                   <button className="text-fresh-green hover:underline">
                     View

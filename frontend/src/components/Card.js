@@ -18,7 +18,7 @@ const Card = ({ data }) => {
           alt={data.images[0]?.altText}
         />
       </div>
-      <div className="flex flex-col gap-5 text-left p-5">
+      <div className="flex flex-col gap-2 text-left p-2">
         <p className="cursor-pointer text-dark-charcoal hover:text-fresh-green transition-all duration-200 line-clamp-1">
           {data.category}
         </p>
@@ -27,7 +27,7 @@ const Card = ({ data }) => {
         </h1>
         <p className="text-lg font-semibold text-tomato-red">{data.price}-PKR</p>
       </div>
-      <div className="py-4 mx-auto">
+      <div className="py-3 mx-auto">
         <button
           onClick={() => {
             navigateToProduct(data);

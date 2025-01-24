@@ -80,6 +80,8 @@ const CheckoutPage = () => {
       };
 
       const response = await axios.post(`${BASE_URL}/order/create`, payload, {headers : {Authorization : `Bearer ${getToken()}`}});
+       console.log("ORDER CREATED", response.data.data)
+       dispatch(updateCounter(0));
       message.success("Your order has been placed, the product is on its way.");
     } catch (error) {
       console.error("Error creating order:", error);

@@ -93,7 +93,7 @@ const CardLayout = () => {
         {!isLoading ? (
           productSearched?.length > 0 ? (
             productSearched.map((item) => (
-              <Card key={item.id} data={item} />
+              <Card key={item._id} data={item} />
             ))
           ) : (
             <div className="w-full text-xl font-semibold text-gray-600">
@@ -106,10 +106,10 @@ const CardLayout = () => {
             .map((_, index) => (
               <div
                 key={index}
-                className="flex gap-3 flex-col w-full sm:w-[48%] lg:w-[30%] xl:w-[22%]"
+                className="flex gap-3 flex-col w-full "
               >
                 <SkeletonLoader height="250px" />
-                <SkeletonLoader width="80%" height="20px" className="mt-3" />
+                <SkeletonLoader width height="20px" className="mt-3" />
                 <SkeletonLoader width="60%" height="15px" className="mt-2" />
               </div>
             ))
