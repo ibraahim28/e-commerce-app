@@ -8,6 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import SkeletonLoader from "../components/loader/Loader";
 import { message } from "antd";
 import { fetchData } from "../utils/data/data";
+import axios from "axios";
+import { BASE_URL } from "../api/config";
+import { getToken, getUserData } from "../utils/auth/auth";
 
 const CheckoutPage = () => {
   const [myCart, setMyCart] = useState([]);
@@ -23,34 +26,25 @@ const CheckoutPage = () => {
   });
 
   useEffect(() => {
-    // Fetch the product data and cart items on mount
     const getData = async () => {
       try {
-        setLoading(true); // Start loading
-
-        // Fetch all the product data
+        setLoading(true);
         const API_DATA = await fetchData();
-
-        // Get the cart product IDs from localStorage
         const cartIds = getProductsFromCart();
-
-        // Get quantity details from localStorage (if exists)
         const quantityData =
           JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
 
-        // Filter API data to get the cart items based on cart IDs
         const filteredCartData = API_DATA.filter((item) =>
           cartIds.includes(item._id)
         );
 
-        // Add quantity and totalPrice for each item
         const updatedCart = filteredCartData.map((item) => {
           const cartItem = quantityData.find((cart) => cart._id === item._id);
           const quantity = cartItem ? cartItem.quantity : 1; // Default quantity is 1
           return {
             ...item,
             quantity,
-            totalPrice: item.price * quantity, // Calculate total price
+            totalPrice: item.price * quantity,
           };
         });
 
@@ -67,7 +61,54 @@ const CheckoutPage = () => {
     getData();
   }, [dispatch]);
 
-  const handleChange = (e) => {
+  const createOrder = async () => {
+    try {
+      const user = getUserData();
+      console.log(user);
+      const payload = {
+        userId: user._id,
+        items: myCart.map((item) => ({
+          productId: item._id,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.totalPrice,
+          size: item.size,
+          color: item.color,
+        })),
+        totalAmount: myCart.reduce((acc, item) => acc + item.totalPrice, 0),
+        shippingAddress: formData.address,
+        orderDate: new Date(),
+      };
+
+      const response = await axios.post(`${BASE_URL}/order/create`, payload, {headers : {Authorization : `Bearer ${getToken()}`}});
+       console.log("ORDER CREATED", response.data.data)
+       dispatch(updateCounter(0));
+      message.success("Your order has been placed, the product is on its way.");
+    } catch (error) {
+      console.error("Error creating order:", error);
+      message.error("Error placing order");
+    }
+  };
+
+  const removefromCart = (params) => {
+    const filteredState = myCart.filter((v) => v._id !== params._id);
+    setMyCart(filteredState);
+
+    const cartIds = getProductsFromCart();
+    const filteredData = cartIds.filter((v) => v !== params._id);
+    addProductToCart(filteredData);
+
+    const updatedQuantityData =
+      JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
+    const updatedQuantity = updatedQuantityData.filter(
+      (v) => v._id !== params._id
+    );
+    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantity));
+
+    dispatch(updateCounter("decrease"));
+  };
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -92,6 +133,16 @@ const CheckoutPage = () => {
     localStorage.removeItem("checkoutQuantity");
 
     // Reset the cart state
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.address ||
+      !formData.phone
+    )
+      return alert("Please fill in all the fields");
+    createOrder();
+    localStorage.removeItem("cart__data");
+    localStorage.removeItem("checkoutQuantity");
     setMyCart([]);
 
     // Reset cart count in Redux store
@@ -99,33 +150,12 @@ const CheckoutPage = () => {
   };
 
   // Remove from cart function
-  const removefromCart = (itemToRemove) => {
-    // Filter out the item to be removed from the cart state
-    const updatedCart = myCart.filter((item) => item._id !== itemToRemove._id);
-    setMyCart(updatedCart);
-
-    // Get the cart IDs from localStorage
-    const cartIds = getProductsFromCart();
-
-    // Remove the item from cart IDs and update localStorage
-    const updatedCartIds = cartIds.filter((id) => id !== itemToRemove._id);
-    addProductToCart(updatedCartIds);
-
-    // Get the existing quantities from localStorage
-    const quantityData = JSON.parse(localStorage.getItem("checkoutQuantity")) || [];
-    
-    // Remove the item from the quantities and update localStorage
-    const updatedQuantityData = quantityData.filter((item) => item._id !== itemToRemove._id);
-    localStorage.setItem("checkoutQuantity", JSON.stringify(updatedQuantityData));
-
-    // Update the Redux counter to decrease the cart count
-    dispatch(updateCounter("decrease"));
-  };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
           <div>
             <h2 className="text-2xl font-semibold mb-4">Checkout Form</h2>
             <form className="space-y-4" onSubmit={handleSubmit}>
@@ -140,15 +170,14 @@ const CheckoutPage = () => {
                   type="text"
                   id="fullName"
                   name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="John Doe"
                   required
-                  value={formData.fullName}
-                  onChange={handleChange}
                 />
               </div>
 
-              {/* Email Field */}
               <div>
                 <label
                   htmlFor="email"
@@ -160,15 +189,14 @@ const CheckoutPage = () => {
                   type="email"
                   id="email"
                   name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="example@mail.com"
                   required
-                  value={formData.email}
-                  onChange={handleChange}
                 />
               </div>
 
-              {/* Address Field */}
               <div>
                 <label
                   htmlFor="address"
@@ -179,15 +207,14 @@ const CheckoutPage = () => {
                 <textarea
                   id="address"
                   name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Your shipping address"
                   required
-                  value={formData.address}
-                  onChange={handleChange}
                 ></textarea>
               </div>
 
-              {/* Phone Number Field */}
               <div>
                 <label
                   htmlFor="phone"
@@ -199,15 +226,14 @@ const CheckoutPage = () => {
                   type="tel"
                   id="phone"
                   name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Your phone number"
                   required
-                  value={formData.phone}
-                  onChange={handleChange}
                 />
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full bg-indigo-500 text-white font-medium rounded-lg py-2 hover:bg-indigo-600"
@@ -278,7 +304,9 @@ const CheckoutPage = () => {
                 ))
               ) : (
                 <p className="text-center text-gray-400">Your cart is empty.</p>
-              )}
+              ) 
+              
+              }
             </div>
           </div>
         </div>
@@ -287,4 +315,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default CheckoutPage

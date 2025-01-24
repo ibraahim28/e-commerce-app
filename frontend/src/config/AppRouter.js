@@ -22,6 +22,7 @@ import FetchAllProducts from "../pages/FetchAllProducts";
 import FetchOrders from "../pages/FetchOrders";
 import FetchUsers from "../pages/FetchUsers";
 import AdminLayout from "../Layouts/AdminLayout"; // Import AdminLayout
+import ProfilePage from "../pages/Profile";
 
 // Private Route for authentication
 const PrivateRoute = ({ children }) => {
@@ -78,6 +79,14 @@ const AppRouter = () => {
                 <CheckoutPage />
               </PrivateRoute>
             }
+          />
+          <Route 
+          path="profile"
+          element = {
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
           />
         </Route>
 
