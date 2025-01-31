@@ -36,7 +36,7 @@ const loginUser = async (req, res) => {
       { data: { id: user._id, email: user.email }, role: "user" },
       process.env.Secret_Key
     );
-    res.send({ success: true, rest, token });
+    res.send({ success: true, rest, userToken : token });
   } catch (error) {
     res.send({ success: false, error: error?.message });
   }

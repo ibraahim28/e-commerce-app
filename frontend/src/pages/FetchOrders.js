@@ -8,7 +8,8 @@ const FetchOrders = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [err, setErr] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState({}); // Store customer data by ID
+  const [customers, setCustomers] = useState({});
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchOrdersAndCustomers = async () => {
@@ -45,13 +46,34 @@ const FetchOrders = () => {
         setCustomers(customerData);
       } catch (error) {
         console.error("Error fetching orders or customers:", error);
-        
+
         setErr(error?.response?.data?.message || "Something went wrong");
       }
     };
 
     fetchOrdersAndCustomers();
-  }, []); 
+  }, []);
+
+
+  const handleOrderDelete = async (orderId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/order/delete/${orderId}`, { headers: { Authorization: `Bearer ${getToken()}` } })
+      console.log("Order deleted", response.data)
+      setOrders(orders.filter(order => order._id !== orderId));
+    } catch (error) {
+console.error("Error deleting order:", error);
+    }
+  }
+
+  const handleOrderEdit = async(orderId)=>{
+    try {
+      const response = (await axios.get(`${BASE_URL}/order/fetch/${orderId}`, {headers : {Authorization : `Bearer ${getToken()}`}})).data;
+      const order = response.data;
+      setEditModalOpen(true);
+    }catch(error){
+      console.error("Error editing order:", error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -127,6 +149,21 @@ const FetchOrders = () => {
       </div>
 
       {/* Orders Table */}
+
+      {editModalOpen && (
+        <div className="bg-gray-800/10 h-screen w-screen" onClick={()=>{setEditModalOpen(false)}}>
+
+            <div>
+              <form>
+                <div>
+                  <label htmlFor="order"></label>
+                </div>
+              </form>
+            </div>
+
+        </div>
+      )}
+
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="w-full text-left table-auto">
           <thead className="bg-gray-200 text-gray-600 uppercase text-sm font-medium">
@@ -151,20 +188,26 @@ const FetchOrders = () => {
                 <td className="px-6 py-4">{order.orderDate}</td>
                 <td className="px-6 py-4">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      order.status === "Pending"
+                    className={`px-3 py-1 rounded-full text-sm ${order.status === "Pending"
                         ? "bg-yellow-200 text-yellow-800"
                         : order.status === "Completed"
-                        ? "bg-green-200 text-green-800"
-                        : "bg-blue-200 text-blue-800"
-                    }`}
+                          ? "bg-green-200 text-green-800"
+                          : "bg-blue-200 text-blue-800"
+                      }`}
                   >
                     {order.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-center">
-                  <button className="text-fresh-green hover:underline">
-                    View
+                <td className="px-4 py-4 text-center flex gap-4">
+                  <button
+
+                    className="text-fresh-green hover:underline">
+                    Edit
+                  </button>
+                  <button
+                    onClick={()=>{handleOrderDelete(order._id)}}
+                    className="text-tomato-red hover:underline">
+                    Delete
                   </button>
                 </td>
               </tr>

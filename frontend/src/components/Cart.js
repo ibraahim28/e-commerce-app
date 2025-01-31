@@ -4,78 +4,97 @@ import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { updateCounter } from "../redux/reducer";
+import { message } from "antd";
 
 const Cart = ({ isOpen, toggleCart }) => {
   const [myCart, setMyCart] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Fetch cart data and initialize quantities
   useEffect(() => {
     const getDataFromCart = async () => {
       try {
         const API_DATA = await fetchData();
         if (Array.isArray(API_DATA)) {
-          const cartIds = getProductsFromCart();
-          const cartItems = API_DATA.filter((item) =>
-            cartIds.includes(item._id)
-          );
+          const cartIds = getProductsFromCart().map((id) => String(id)); 
+          const localstorageItem = localStorage.getItem('checkoutQuantity') ;
+          const savedQuantities = JSON.parse(localstorageItem || []);
+          console.log("savedQuantities =====>>>> ", savedQuantities);
 
-          cartItems.forEach((v) => {
-            v.quantity = 1;
-            v.totalPrice = v.price * v.quantity;
+          const cartItems = API_DATA.filter((item) =>
+            cartIds.includes(String(item._id)) );
+
+          cartItems.forEach((item) => {
+            const savedItem = savedQuantities.find((q) => String(q._id) === String(item._id));
+            console.log('Looking for:', String(item._id), 'In:', savedQuantities);
+            console.log('Found:', savedItem);
+            item.quantity = savedItem ? savedItem.quantity : 1;
+            item.totalPrice = item.price * item.quantity;
           });
 
           setMyCart(cartItems);
-        } else {
-          console.error("API_DATA is not an array:", API_DATA);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+
+      
+      
     };
 
     getDataFromCart();
   }, []);
 
-  const priceQuantity = (price, quantity) => price * quantity;
 
-  
-  // Function to calculate the total price of all items (rounded to 2 decimal places)
+  useEffect(() => {
+    const checkoutQuantityData = myCart.map(({ _id, quantity }) => ({ _id, quantity }));
+    localStorage.setItem('checkoutQuantity', JSON.stringify(checkoutQuantityData));
+  }, [myCart]);
+
+  // Calculate total price
   const totalPrice = () => {
     return myCart.reduce((total, v) => {
-      return total + parseFloat(priceQuantity(v.price, v.quantity)); // Add each item's total price
-    }, 0).toFixed(2); // Round the final total to 2 decimal places
+      return total + parseFloat(v.price * v.quantity);
+    }, 0).toFixed(2);
   };
 
-  // Function to remove an item from the cart
-  const removeFromCart = (params) => {
-    setMyCart((prevCart = []) =>
-      prevCart.filter((cartItem) => cartItem._id !== params._id)
+  // Remove item from cart
+  const removeFromCart = (item) => {
+    setMyCart((prevCart) => prevCart.filter((cartItem) => cartItem._id !== item._id));
+
+    // Convert both IDs to strings for comparison
+    const cartIds = getProductsFromCart().filter((id) =>
+      String(id) !== String(item._id) // Compare as strings
     );
 
-    const data = getProductsFromCart();
-    const filteredData = data.filter((v) => String(v) !== String(params._id));
-    addProductToCart(filteredData);
+    addProductToCart(cartIds);
+
+    const checkoutQuantity = JSON.parse(localStorage.getItem('checkoutQuantity')) || [];
+    const updatedCheckout = checkoutQuantity.filter((q) =>
+      String(q._id) !== String(item._id) // Compare as strings
+    );
+
+    localStorage.setItem('checkoutQuantity', JSON.stringify(updatedCheckout));
     dispatch(updateCounter("decrease"));
   };
-
-  // Function to handle quantity change
+  // Handle quantity change
   const handleQuantity = (item, e) => {
     let newQuantity = Number(e.target.value);
-
-    if (newQuantity <= 0) newQuantity = 1;
+    if (newQuantity <= 0) return;
 
     setMyCart((prevCart) =>
       prevCart.map((cartItem) =>
         cartItem._id === item._id
           ? {
-              ...cartItem,
-              quantity: newQuantity,
-              totalPrice: newQuantity * cartItem.price,
-            }
+            ...cartItem,
+            quantity: newQuantity,
+            totalPrice: newQuantity * cartItem.price,
+          }
           : cartItem
       )
     );
+
   };
 
   const navigateToCheckout = () => navigate("checkout");
@@ -125,9 +144,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                     </div>
                     <div className="flex justify-between items-center mt-2">
                       <p className="text-lg font-medium text-dark-charcoal">
-                        PKR{" "}
-                        {item.totalPrice ||
-                          priceQuantity(item.price, item.quantity)}
+                        PKR {item.totalPrice}
                       </p>
                       <input
                         min={1}

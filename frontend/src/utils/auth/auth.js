@@ -10,7 +10,7 @@ export const getUserRole = () => {
   try {
     const decodedToken = jwtDecode(token);
     console.log("decodedToken", decodedToken)
-    return decodedToken.role; // Assuming role is stored in the token
+    return decodedToken.role; 
   } catch (error) {
     return null;
   }

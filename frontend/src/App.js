@@ -9,13 +9,12 @@ function App() {
 
 
   useEffect(()=> {
-    const localstorageItem = localStorage.getItem('checkoutQuantity')
+    const localstorageItem =  localStorage.getItem('checkoutQuantity')
 
     if (!localstorageItem) {
       localStorage.setItem('checkoutQuantity', JSON.stringify([]))
     }
 
- 
   },[])
 
   return (

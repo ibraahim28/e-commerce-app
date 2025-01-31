@@ -51,9 +51,9 @@ const orderSchema = new mongoose.Schema({
    status: {
       type: String,
       enum: ['pending', 'shipped', 'cancelled', 'delivered'],
-      default: 'pending',  // Set default status as 'pending'
+      default: 'pending',  
    },
-});
+}, {timestamps : true});
 
 const Order = mongoose.model('Order', orderSchema);
 

@@ -6,10 +6,10 @@ import { getUserRole } from "../utils/auth/auth";
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(true); // Track if we're in Signup or Login
   const [formData, setFormData] = useState({ email: "", password: "", username: "" });
-  const [error, setError] = useState(null);
+  const [err, setErr] = useState(null);
   const [fadeIn, setFadeIn] = useState(true); // Track when the fade-in should happen
   const [fadeOut, setFadeOut] = useState(false); // Track when the fade-out should happen
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -17,7 +17,7 @@ const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     try {
-      setError(null);
+      setErr(null);
       e.preventDefault();
       const { data } = await axios.post(
         isSignup ? "http://localhost:5001/register" : "http://localhost:5001/login",
@@ -28,6 +28,11 @@ const navigate = useNavigate();
           },
         }
       );
+      console.log("DATA", data)
+      if (!data.success) {
+        return setErr(data.error ? data.error : data ? data : 'An error occurred, please try again later');
+
+      }
       localStorage.setItem("auth_token", data.userToken);
       const userRole = getUserRole();
       console.log("userRole", userRole)
@@ -37,19 +42,19 @@ const navigate = useNavigate();
         navigate('/');
       }, 100);
     } catch (error) {
-      setError(error?.response?.data);
+      setErr(error?.response);
+      console.log(error)
     }
   };
 
   const toggleTab = () => {
-    // Trigger fade-out animation when switching tabs
+   
     setFadeOut(true);
-    
-    // Delay the tab change and fade-in animation to give the fade-out time to complete
+
     setTimeout(() => {
-      setIsSignup(!isSignup); // Toggle between Signup and Login forms
-      setFadeOut(false); // Reset fade-out
-    }, 500); // 500ms duration for the fade-out
+      setIsSignup(!isSignup); 
+      setFadeOut(false); 
+    }, 500); 
 
     // Trigger fade-in animation after the fade-out completes
     setTimeout(() => {
@@ -64,28 +69,25 @@ const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-soft-beige">
       <div
-        className={`w-full max-w-md bg-white rounded-lg shadow-lg p-8 transition-opacity duration-500 ${
-          fadeOut ? "opacity-0" : "opacity-100"
-        }`}
+        className={`w-full max-w-md bg-white rounded-lg shadow-lg p-8 transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
+          }`}
       >
         <h1
-          className={`text-2xl font-semibold text-dark-charcoal mb-6 text-center transition-opacity duration-500 ${
-            fadeOut ? "opacity-0" : "opacity-100"
-          }`}
+          className={`text-2xl font-semibold text-dark-charcoal mb-6 text-center transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
+            }`}
         >
           {isSignup ? "Signup" : "Login"}
         </h1>
 
-        {error && (
-          <div className="bg-red-400 p-2 rounded-md mb-4">
-            <p className="block font-medium text-lg text-tomato-red">{error}</p>
+        {err && (
+          <div className="bg-red-200 p-2 rounded-md mb-4">
+            <p className="block font-medium text-lg text-tomato-red">{err}</p>
           </div>
         )}
 
         <div
-          className={`space-y-4 transition-opacity duration-500 ${
-            fadeOut ? "opacity-0" : "opacity-100"
-          }`}
+          className={`space-y-4 transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
+            }`}
         >
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignup && (
@@ -148,9 +150,8 @@ const navigate = useNavigate();
         </div>
 
         <div
-          className={`mt-4 text-center transition-opacity duration-500 ${
-            fadeOut ? "opacity-0" : "opacity-100"
-          }`}
+          className={`mt-4 text-center transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
+            }`}
         >
           <button
             onClick={toggleTab}

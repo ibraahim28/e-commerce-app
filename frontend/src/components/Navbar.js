@@ -24,7 +24,7 @@ const Navbar = ({ toggleCart }) => {
     <div className="relative">
       <header className="bg-dark-charcoal text-white flex items-center justify-between px-6 sm:px-10 py-4 sm:py-6 shadow-lg">
         {/* Logo */}
-        <div>
+        <div onClick={()=>{navigate('/')}} className="cursor-pointer">
           <img src={logo} alt="Logo" className="h-8 sm:h-10 cursor-pointer" />
         </div>
 
@@ -68,13 +68,15 @@ const Navbar = ({ toggleCart }) => {
               </button>
             </div>
             {/* User Profile/Login */}
-            <div className="flex flex-col items-center text-sm text-white hover:text-fresh-green">
+            <div
+             onClick={user ? navigateToProfile : navigateToRegister}
+            className="flex flex-col items-center text-sm text-white hover:text-fresh-green">
               <button className="transition-all">
                 <FaUser />
               </button>
               <button
                 className="transition-all"
-                onClick={user ? navigateToProfile : navigateToRegister}
+               
               >
                 {user ? user.username : "Login"}
               </button>
