@@ -15,7 +15,7 @@ const HeroSection = () => {
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-text-primary leading-tight">
               The Online<br /> Grocery Store
             </h1>
-            <button className="bg-primary px-12 py-4 text-white font-semibold rounded-full transition-all transform hover:scale-105 hover:bg-fresh-green">
+            <button className="bg-fresh-green px-12 py-4 text-white text-sm md:text-lg font-semibold rounded-full transition-all transform hover:scale-105 hover:bg-transparent hover: border-4 border-fresh-green hover:text-fresh-green ">
               Shop Now
             </button>
           </div>

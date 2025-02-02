@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { getUserData } from "../utils/auth/auth";
+import { BASE_URL } from "../api/config";
 
 const Navbar = ({ toggleCart }) => {
   const { counter } = useSelector((state) => state);
@@ -17,6 +18,7 @@ const Navbar = ({ toggleCart }) => {
   const navigateToProfile = () => navigate("/profile");
 
   const user = getUserData();
+  console.log(user)
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -24,7 +26,7 @@ const Navbar = ({ toggleCart }) => {
     <div className="relative">
       <header className="bg-dark-charcoal text-white flex items-center justify-between px-6 sm:px-10 py-4 sm:py-6 shadow-lg">
         {/* Logo */}
-        <div onClick={()=>{navigate('/')}} className="cursor-pointer">
+        <div onClick={() => { navigate('/') }} className="cursor-pointer">
           <img src={logo} alt="Logo" className="h-8 sm:h-10 cursor-pointer" />
         </div>
 
@@ -69,14 +71,20 @@ const Navbar = ({ toggleCart }) => {
             </div>
             {/* User Profile/Login */}
             <div
-             onClick={user ? navigateToProfile : navigateToRegister}
-            className="flex flex-col items-center text-sm text-white hover:text-fresh-green">
-              <button className="transition-all">
-                <FaUser />
-              </button>
+              onClick={user ? navigateToProfile : navigateToRegister}
+              className="flex flex-col items-center text-sm text-white hover:text-fresh-green">
+              {user && user.profilePicture ? (
+                <img
+                  src={`${BASE_URL}${user.profilePicture}`}
+                  alt="profile"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <FaUser className="text-white" />
+              )}
               <button
                 className="transition-all"
-               
+
               >
                 {user ? user.username : "Login"}
               </button>

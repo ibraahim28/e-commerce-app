@@ -118,10 +118,10 @@ const ProfilePage = () => {
             <div className="flex flex-col sm:flex-row items-center gap-8">
               <div className="group relative">
                 <div className="w-24 h-24 rounded-full border-4 border-white shadow-profile transition-transform duration-300 group-hover:scale-105">
-                  {userData.avatar ? (
+                  {userData.profilePicture ? (
                     <img
-                      src={userData.avatar}
-                      alt="avatar"
+                      src={`${BASE_URL}${userData.profilePicture}`}
+                      alt="profilePicture"
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (

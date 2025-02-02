@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const path = require('path')
 require("dotenv").config();
 require("./config/DB");
 const userRouter = require("./src/routers/userRouter");
@@ -11,6 +12,7 @@ const orderRouter = require("./src/routers/orderRouter");
 const authenticateUser = require("./src/middlewares/authMiddleware");
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/", authRouter);
 app.use("/admin", adminAuthRouter);

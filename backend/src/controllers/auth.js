@@ -5,22 +5,33 @@ const Admin = require("../models/adminModel");
 
 const createUser = async (req, res) => {
   try {
-    body = req.body;
-    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const { email, password, username } = req.body;
+
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
+    const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
+    console.log("SAVED PROFILE", profilePicture);
+
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
-      ...body,
+      email,
+      username,
       password: hashedPassword,
+      profilePicture, 
     });
-    const { password, ...rest } = user.toObject();
+
+    const { password: _, ...rest } = user.toObject(); 
     const token = jwt.sign(
       { data: rest, role: "user" },
       process.env.Secret_Key
     );
-    console.log(token);
 
     res.send({ success: true, data: rest, userToken: token });
   } catch (error) {
-    res.send({ success: false, error: error?.message });
+    res.status(500).send({ success: false, error: error.message });
   }
 };
 

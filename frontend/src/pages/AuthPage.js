@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getUserRole } from "../utils/auth/auth";
+import { FaUpload } from "react-icons/fa6";
 
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(true); // Track if we're in Signup or Login
-  const [formData, setFormData] = useState({ email: "", password: "", username: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", username: "", profilePicture: "" });
   const [err, setErr] = useState(null);
   const [fadeIn, setFadeIn] = useState(true); // Track when the fade-in should happen
   const [fadeOut, setFadeOut] = useState(false); // Track when the fade-out should happen
@@ -16,45 +17,52 @@ const AuthPage = () => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErr(null);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("password", formData.password);
+
+    if (isSignup) {
+      formDataToSend.append("username", formData.username);
+      if (formData.profilePicture) {
+        formDataToSend.append("profilePicture", formData.profilePicture);
+      }
+    }
+
     try {
-      setErr(null);
-      e.preventDefault();
       const { data } = await axios.post(
         isSignup ? "http://localhost:5001/register" : "http://localhost:5001/login",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        formDataToSend,
+        
       );
-      console.log("DATA", data)
-      if (!data.success) {
-        return setErr(data.error ? data.error : data ? data : 'An error occurred, please try again later');
 
+      console.log("DATA", data);
+      if (!data.success) {
+        return setErr(data.error || "An error occurred, please try again later");
       }
+
       localStorage.setItem("auth_token", data.userToken);
       const userRole = getUserRole();
-      console.log("userRole", userRole)
-      localStorage.setItem("user_role", userRole)
-      console.log("Form submitted:", data.userToken);
-      setTimeout(() => {
-        navigate('/');
-      }, 100);
+      localStorage.setItem("user_role", userRole);
+
+      setTimeout(() => navigate("/"), 100);
     } catch (error) {
-      setErr(error?.response);
-      console.log(error)
+      setErr(error?.response?.data?.message || "Something went wrong");
+      console.log(error);
     }
   };
 
+
   const toggleTab = () => {
-   
+
     setFadeOut(true);
 
     setTimeout(() => {
-      setIsSignup(!isSignup); 
-      setFadeOut(false); 
-    }, 500); 
+      setIsSignup(!isSignup);
+      setFadeOut(false);
+    }, 500);
 
     // Trigger fade-in animation after the fade-out completes
     setTimeout(() => {
@@ -89,23 +97,42 @@ const AuthPage = () => {
           className={`space-y-4 transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
             }`}
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit}  className="space-y-4">
             {isSignup && (
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-dark-charcoal">
-                  Username:
-                </label>
-                <input
-                  required
-                  type="text"
-                  name="username"
-                  id="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="example123"
-                  className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal focus:ring-2 focus:ring-fresh-green focus:outline-none"
-                />
-              </div>
+              <>
+                <div>
+                  <label htmlFor="profilePicture" className="flex rounded-lg shadow-inner shadow-gray-400 cursor-pointer gap-4 justify-center items-center w-full px-4 py-6 bg-gray-100 text-sm">
+                    <FaUpload size={20} /> Upload Profile Picture
+                    <input type="file"
+                      name="profilePicture"
+                      id="profilePicture"
+                      onChange={(e) => {
+                        if (e.target.files.length > 0) {
+                          setFormData({ ...formData, profilePicture: e.target.files[0]})
+                          console.log(e.target.files[0])
+                        }
+                      }
+                      }
+                      className="hidden" />
+                  </label>
+                </div>
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-dark-charcoal">
+                    Username:
+                  </label>
+                  <input
+                    required
+                    type="text"
+                    name="username"
+                    id="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="example123"
+                    className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal focus:ring-2 focus:ring-fresh-green focus:outline-none"
+                  />
+                </div>
+
+              </>
             )}
 
             <div>
