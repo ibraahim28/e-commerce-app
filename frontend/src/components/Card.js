@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../api/config";
 
 const Card = ({ data }) => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Card = ({ data }) => {
       <div className="w-full p-4">
         <img
           className="w-full cursor-pointer aspect-square hover:scale-105 transition-all duration-300 rounded-lg"
-          src={data.images[0]?.url}
+          src={`${BASE_URL}${data.images[0]?.url}`}
           alt={data.images[0]?.altText}
         />
       </div>

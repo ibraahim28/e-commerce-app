@@ -12,13 +12,12 @@ const AddProduct = () => {
     stock: "",
     colors: [],
     sizes: [],
-    images: [],
   });
 
   const [colorInput, setColorInput] = useState("");
   const [sizeInput, setSizeInput] = useState("");
   const [altText, setAltText] = useState("");
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFile, setImageFile] = useState('');
 
   // Handle general form data change
   const handleChange = (e) => {
@@ -82,27 +81,38 @@ const AddProduct = () => {
     });
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        price: formData.price,
-        category: formData.category,
-        stock: formData.stock,
-        images: formData.images,
-        createdAt: Date.now,
-      };
-      const response = await axios.post(`${BASE_URL}/product/create`, payload, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      const product = response.data.data;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("price", formData.price);
+    formDataToSend.append("category", formData.category);
+    formDataToSend.append("stock", formData.stock);
+    formDataToSend.append("colors", JSON.stringify(formData.colors));
+    formDataToSend.append("sizes", JSON.stringify(formData.sizes));
+    
+    // Append the image file if available
+    if (imageFile) {
+      formDataToSend.append("ProductImage", imageFile);
+      // Optionally append alt text if needed
+      formDataToSend.append("altText", altText);
+    }
 
-      console.log(product);
-    } catch (error) {}
-  };
+    const response = await axios.post(`${BASE_URL}/product/create`, formDataToSend, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        // Let Axios set the Content-Type to multipart/form-data automatically by not overriding it.
+      },
+    });
+
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center">
@@ -271,7 +281,12 @@ const AddProduct = () => {
           <div className="flex items-center gap-2">
             <input
               type="file"
-              onChange={(e) => setImageFile(e.target.files[0])}
+              name="ProductImage"
+              onChange={(e)=>{
+                if (e.target.files && e.target.files.length > 0) {
+                  setImageFile(e.target.files[0]); // Use your dedicated state for file upload.
+                }
+              }}
               className="border rounded-lg p-2 flex-grow"
               accept="image/*"
             />
@@ -291,30 +306,7 @@ const AddProduct = () => {
               Add
             </button>
           </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {formData.images.map((image, index) => (
-              <div
-                key={index}
-                className="border p-2 rounded-lg flex items-center gap-2"
-              >
-                <img
-                  src={image.url}
-                  alt={image.altText}
-                  className="h-16 w-16 object-cover"
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm">{image.altText}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(image.url)}
-                    className="text-red-500 text-sm"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        
         </div>
 
         {/* Submit */}

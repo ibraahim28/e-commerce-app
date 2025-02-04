@@ -2,7 +2,19 @@ const Product = require('../models/productModel');
 
 const createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body);
+        console.log(req.user)
+        console.log("req.file", req.file)
+        const { name, description, price, category, stock } = req.body;
+        const image = req.file ? `/uploads/${req.file.filename}` : null;
+        console.log(image)
+        const product = await Product.create({
+            name,
+            description,
+            price,
+            category,
+            stock,
+            images: [{ url: image, altText: req.body.name }]
+        });
         console.log(product);
         res.status(201).send({ success: true, data: product });
     } catch (error) {
@@ -34,7 +46,7 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
 
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true});
+        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!product) {
             return res.status(404).send({ success: false, error: 'Product not found' });
         }
