@@ -4,10 +4,10 @@ const { createOrder, updateOrder, getAllOrders, deleteOrder, getOneUsersOrders, 
 const router = express.Router();
 
 router.get('/fetch', getAllOrders)
-router.get('/fetch/:id', getOrderById)
 router.get('/fetch/recent', getRecentOrders)
 router.get('/fetch/user-orders', getOneUsersOrders)
 router.post('/create', createOrder)
+router.get('/fetch/:id', getOrderById)
 router.put('/update/:id', updateOrder)
 router.delete('/delete/:id', deleteOrder)
 

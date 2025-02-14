@@ -43,11 +43,11 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const {id:userId} = req.params;
     if (!userId)
       return res.status(404).send({ success: false, error: "token not found" });
-    await User.findByIdAndDelete(userId);
-    res.status(200).send({ message: "User deleted successfully" });
+    const deletedUser = await User.findByIdAndDelete(userId, {new : true});
+    res.status(200).send({success : true, data: deletedUser });
   } catch (error) {
     res.status(500).send({ message: "Error deleting user", error });
   }

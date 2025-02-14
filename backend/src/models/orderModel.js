@@ -27,12 +27,12 @@ const orderSchema = new mongoose.Schema({
          size: {
             type: String,
             enum: ['s', 'm', 'l', 'xl', 'xxl'],
-            default: null,  // No default value for size
+            default: null,  
          },
          color: {
             type: String,
             enum: ['red', 'blue', 'yellow', 'white'],
-            default: null,  // No default value for color
+            default: null,  
          }
       }
    ],

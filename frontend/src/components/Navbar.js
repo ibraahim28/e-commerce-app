@@ -4,7 +4,7 @@ import logo from "../img/logo.png";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { getUserData } from "../utils/auth/auth";
+import { getUserData, getUserRole } from "../utils/auth/auth";
 import { BASE_URL } from "../api/config";
 
 const Navbar = ({ toggleCart }) => {
@@ -16,9 +16,10 @@ const Navbar = ({ toggleCart }) => {
   const handleSearch = () => setSearching((prev) => !prev);
   const navigateToRegister = () => navigate("/register");
   const navigateToProfile = () => navigate("/profile");
-
+  const navigateToDashboard = () => navigate('/admin/dashboard')
   const user = getUserData();
   console.log(user)
+  const userRole = getUserRole();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -71,7 +72,7 @@ const Navbar = ({ toggleCart }) => {
             </div>
             {/* User Profile/Login */}
             <div
-              onClick={user ? navigateToProfile : navigateToRegister}
+              onClick={user ? userRole === 'user' ? navigateToProfile : navigateToDashboard : navigateToRegister}
               className="flex flex-col items-center text-sm text-white hover:text-fresh-green">
               {user && user.profilePicture ? (
                 <img

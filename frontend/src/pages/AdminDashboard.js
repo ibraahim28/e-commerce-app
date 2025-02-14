@@ -2,11 +2,13 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../api/config";
 import { getToken } from "../utils/auth/auth";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0)
   const [recentOrders, setRecentOrders] = useState([])
+  const navigate = useNavigate();
   useEffect(() => {
 
     const getTotalCustomers = async () => {
@@ -33,33 +35,42 @@ const AdminDashboard = () => {
 
     const getRecentOrders = async () => {
       try {
-        // 1. Properly await the axios response
-        const response = await axios.get(
-          `${BASE_URL}/order/fetch/recent`,
-          { headers: { Authorization: `Bearer ${getToken()}` } }
-        );
-
-        // 2. Access response data correctly
-        const responseData = response.data;
-
-        // 3. Handle success/error cases
-        if (responseData.success) {
-          setRecentOrders(responseData.data); // Directly access the data array
-          console.log("Recent orders:", responseData.data);
+        const response = await axios.get(`${BASE_URL}/order/fetch/recent`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+    
+        const { success, data } = response.data;
+    
+        if (success) {
+          setRecentOrders(data);
+          console.log("Recent orders:", data);
         } else {
           setRecentOrders([]);
+          console.warn("No recent orders found.");
         }
       } catch (error) {
-        console.error("Error fetching recent orders:", error?.response?.data);
+        console.error(
+          "Error fetching recent orders:",
+          error?.response?.data || error.message
+        );
         setRecentOrders([]);
       }
-    }
+    };
+    
 
     getTotalCustomers();
     getPendingOrders();
     getRecentOrders();
   }, [])
 
+const handleLogout = async (id) => {
+  try {
+    localStorage.clear();
+    navigate('/')
+  } catch (error) {
+    
+  }
+}
 
 
 
@@ -70,7 +81,7 @@ const AdminDashboard = () => {
         <header className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Welcome, Admin!</h1>
           <div className="flex items-center space-x-4">
-            <button className="px-4 py-2 bg-red-600 text-white rounded-lg">Logout</button>
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg" onClick={handleLogout}>Logout</button>
           </div>
         </header>
 
