@@ -13,17 +13,17 @@ const createUser = async (req, res) => {
     const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
     console.log("SAVED PROFILE", profilePicture);
 
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       email,
       username,
       password: hashedPassword,
-      profilePicture, 
+      profilePicture,
     });
 
-    const { password: _, ...rest } = user.toObject(); 
+    const { password: _, ...rest } = user.toObject();
     const token = jwt.sign(
       { data: rest, role: "user" },
       process.env.Secret_Key
@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
       { data: { id: user._id, email: user.email }, role: "user" },
       process.env.Secret_Key
     );
-    res.send({ success: true, rest, userToken : token });
+    res.send({ success: true, rest, userToken: token });
   } catch (error) {
     res.send({ success: false, error: error?.message });
   }
@@ -55,17 +55,33 @@ const loginUser = async (req, res) => {
 
 const createAdmin = async (req, res) => {
   try {
-    const body = req.body;
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-    const newAdmin = await Admin.create({ ...body, password: hashedPassword });
+    const { email, password, username } = req.body;
+
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
+    const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
+    console.log("SAVED PROFILE", profilePicture);
+
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await Admin.create({
+      email,
+      username,
+      password: hashedPassword,
+      profilePicture,
+    });
+
+    const { password: _, ...rest } = admin.toObject();
     const token = jwt.sign(
-      { data: newAdmin, role: "admin" },
+      { data: rest, role: "admin" },
       process.env.Secret_Key
     );
 
-    res.send({ success: true, data: newAdmin, userToken: token });
+    res.send({ success: true, data: rest, userToken: token });
   } catch (error) {
-    res.send({ success: false, error: error?.message });
+    res.status(500).send({ success: false, error: error.message });
   }
 };
 
