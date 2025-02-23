@@ -66,7 +66,7 @@ const CheckoutPage = () => {
       const user = getUserData();
       console.log(user);
       const payload = {
-        userId: user._id,
+        user: user._id,
         items: myCart.map((item) => ({
           productId: item._id,
           quantity: item.quantity,

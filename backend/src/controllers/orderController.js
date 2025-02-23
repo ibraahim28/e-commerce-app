@@ -37,11 +37,17 @@ const createOrder = async (req, res) => {
 
 const updateOrder = async (req, res) => {
   try {
-    const ordderID = req.params.id;
+    const orderID = req.params.id;
+    console.log("orderID============", orderID)
     const payload = req.body;
-    const updated = await Order.findByIdAndUpdate(orderID, payload, {
+    console.log("payload============", payload)
+    const updatedOrder = await Order.findByIdAndUpdate(orderID, payload, {
       new: true,
     });
+    console.log("updatedOrder===============", updatedOrder)
+    res.status(200).send({
+      success: true, data: updatedOrder,
+    })
   } catch (error) {
     res.status(400).send({ success: false, error: error?.message });
   }
@@ -60,8 +66,8 @@ const deleteOrder = async (req, res) => {
 
 const getRecentOrders = async (req, res) => {
   try {
-    const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(4);
-    console.log(recentOrders);
+    const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(10)
+    console.log("recentOrders", recentOrders);
     res.status(200).send({ success: true, data: recentOrders });
   } catch (error) {
     res.status(500).send({ success: false, error: error?.message });

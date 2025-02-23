@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-   userId: {
+   user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
    },
@@ -27,12 +27,12 @@ const orderSchema = new mongoose.Schema({
          size: {
             type: String,
             enum: ['s', 'm', 'l', 'xl', 'xxl'],
-            default: null,  
+            default: null,
          },
          color: {
             type: String,
             enum: ['red', 'blue', 'yellow', 'white'],
-            default: null,  
+            default: null,
          }
       }
    ],
@@ -51,9 +51,9 @@ const orderSchema = new mongoose.Schema({
    status: {
       type: String,
       enum: ['pending', 'shipped', 'cancelled', 'delivered'],
-      default: 'pending',  
+      default: 'pending',
    },
-}, {timestamps : true});
+}, { timestamps: true });
 
 const Order = mongoose.model('Order', orderSchema);
 

@@ -1,83 +1,158 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FaFilter, FaSearch } from "react-icons/fa";
+import { FaFilter, FaSearch, FaTimes } from "react-icons/fa";
 import { BASE_URL } from "../api/config";
 import { getToken } from "../utils/auth/auth";
 
+const OrderModal = ({ order, onClose, onUpdate }) => {
+  const [status, setStatus] = useState(order.status);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/order/update/${order._id}`,
+        { ...order, status },
+        { headers: { Authorization: `Bearer ${getToken()}` } }
+      );
+      onUpdate(response.data.data);
+      onClose();
+    } catch (err) {
+      console.log(err)
+      setError(err.response?.data?.message || "Failed to update order");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          <FaTimes size={20} />
+        </button>
+
+        <h2 className="text-2xl font-bold mb-4">Edit Order Status</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Order ID</label>
+            <p className="text-gray-600 break-words">{order._id}</p>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Customer</label>
+            <p className="text-gray-600">{order.customerName}</p>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-fresh-green focus:border-transparent"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-fresh-green text-white rounded-md hover:bg-green-600 disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const FetchOrders = () => {
   const [filterOpen, setFilterOpen] = useState(false);
-  const [err, setErr] = useState(null);
+  const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState({});
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrdersAndCustomers = async () => {
+    const fetchData = async () => {
       try {
         // Fetch Orders
-        const response = await axios.get(`${BASE_URL}/order/fetch`, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
+        const ordersResponse = await axios.get(`${BASE_URL}/order/fetch`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
         });
-        const fetchedOrders = response.data.data;
+        const fetchedOrders = ordersResponse.data.data;
         setOrders(fetchedOrders);
 
-        // Extract unique customer IDs from orders
-        const customerIds = [
-          ...new Set(fetchedOrders.map((order) => order.userId)),
-        ];
-
-        // Fetch all customer data in parallel
-        const customerResponses = await Promise.all(
-          customerIds.map((id) =>
+        // Fetch Customers
+        const customerIds = [...new Set(fetchedOrders.map(order => order.userId))];
+        const customerResponses = await Promise.allSettled(
+          customerIds.map(id =>
             axios.get(`${BASE_URL}/user/fetch/${id}`, {
               headers: { Authorization: `Bearer ${getToken()}` },
             })
           )
         );
 
-        // Map customer data by ID for quick lookup
         const customerData = {};
-        customerResponses.forEach((res) => {
-          customerData[res.data.data._id] = res.data.data.username;
+        customerResponses.forEach(response => {
+          if (response.status === "fulfilled") {
+            const user = response.value.data.data;
+            customerData[user._id] = user.username;
+          }
         });
-
         setCustomers(customerData);
-      } catch (error) {
-        console.error("Error fetching orders or customers:", error);
-
-        setErr(error?.response?.data?.message || "Something went wrong");
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to load orders");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchOrdersAndCustomers();
+    fetchData();
   }, []);
-
 
   const handleOrderDelete = async (orderId) => {
     try {
-      const response = await axios.delete(`${BASE_URL}/order/delete/${orderId}`, { headers: { Authorization: `Bearer ${getToken()}` } })
-      console.log("Order deleted", response.data)
+      await axios.delete(`${BASE_URL}/order/delete/${orderId}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
       setOrders(orders.filter(order => order._id !== orderId));
-    } catch (error) {
-console.error("Error deleting order:", error);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete order");
     }
-  }
+  };
 
-  const handleOrderEdit = async(orderId)=>{
-    try {
-      const response = (await axios.get(`${BASE_URL}/order/fetch/${orderId}`, {headers : {Authorization : `Bearer ${getToken()}`}})).data;
-      const order = response.data;
-      setEditModalOpen(true);
-    }catch(error){
-      console.error("Error editing order:", error)
-    }
-  }
+  const handleOrderUpdate = (updatedOrder) => {
+    setOrders(orders.map(order =>
+      order._id === updatedOrder._id ? updatedOrder : order
+    ));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Header Section */}
       <header className="flex justify-between items-center bg-white shadow-md p-4 rounded-lg mb-6">
         <h1 className="text-xl font-bold text-gray-800">Order Management</h1>
         <button
@@ -88,81 +163,8 @@ console.error("Error deleting order:", error);
           Filters
         </button>
       </header>
-      {err && (<p>{err}</p>)}
-      {/* Filters Section */}
-      {filterOpen && (
-        <div className="bg-white p-4 shadow-md rounded-lg mb-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col">
-              <label htmlFor="status" className="text-gray-700 font-medium">
-                Order Status
-              </label>
-              <select
-                id="status"
-                className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-fresh-green"
-              >
-                <option value="">All</option>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="payment" className="text-gray-700 font-medium">
-                Payment Method
-              </label>
-              <select
-                id="payment"
-                className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-fresh-green"
-              >
-                <option value="">All</option>
-                <option value="COD">COD</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="date" className="text-gray-700 font-medium">
-                Date Range
-              </label>
-              <input
-                type="date"
-                id="date"
-                className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-fresh-green"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Search Section */}
-      <div className="bg-white p-4 shadow-md rounded-lg mb-6">
-        <div className="relative">
-          <FaSearch className="absolute left-3 top-3 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by Order ID or Customer Name"
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-fresh-green"
-          />
-        </div>
-      </div>
-
-      {/* Orders Table */}
-
-      {editModalOpen && (
-        <div className="bg-gray-800/10 h-screen w-screen" onClick={()=>{setEditModalOpen(false)}}>
-
-            <div>
-              <form>
-                <div>
-                  <label htmlFor="order"></label>
-                </div>
-              </form>
-            </div>
-
-        </div>
-      )}
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="w-full text-left table-auto">
@@ -177,44 +179,77 @@ console.error("Error deleting order:", error);
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {orders.map((order) => (
-              <tr
-                key={order._id}
-                className="hover:bg-gray-100 transition-all border-b"
-              >
-                <td className="px-6 py-4">{order._id}</td>
-                <td className="px-6 py-4">{customers[order.userId] || "Loading..."}</td>
-                <td className="px-6 py-4">{order.totalAmount}</td>
-                <td className="px-6 py-4">{order.orderDate}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${order.status === "Pending"
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  Loading orders...
+                </td>
+              </tr>
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  No orders found
+                </td>
+              </tr>
+            ) : (
+              orders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="hover:bg-gray-100 transition-all border-b"
+                >
+                  <td className="px-6 py-4">{order._id.slice(-6)}</td>
+                  <td className="px-6 py-4">
+                    {customers[order.userId] || "Unknown Customer"}
+                  </td>
+                  <td className="px-6 py-4">${order.totalAmount}</td>
+                  <td className="px-6 py-4">
+                    {new Date(order.orderDate).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${order.status === "Pending"
                         ? "bg-yellow-200 text-yellow-800"
                         : order.status === "Completed"
                           ? "bg-green-200 text-green-800"
-                          : "bg-blue-200 text-blue-800"
-                      }`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-center flex gap-4">
-                  <button
-
-                    className="text-fresh-green hover:underline">
-                    Edit
-                  </button>
-                  <button
-                    onClick={()=>{handleOrderDelete(order._id)}}
-                    className="text-tomato-red hover:underline">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+                          : order.status === "Cancelled"
+                            ? "bg-red-200 text-red-800"
+                            : "bg-blue-200 text-blue-800"
+                        }`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-center flex gap-4 justify-center">
+                    <button
+                      onClick={() => setSelectedOrder({
+                        ...order,
+                        customerName: customers[order.userId] || "Unknown Customer"
+                      })}
+                      className="text-fresh-green hover:underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleOrderDelete(order._id)}
+                      className="text-tomato-red hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {selectedOrder && (
+        <OrderModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onUpdate={handleOrderUpdate}
+        />
+      )}
     </div>
   );
 };

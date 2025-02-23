@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const AdminDashboard = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0)
+  const [customers, setCustomers] = useState({}); // Add this line with other state declarations
   const [recentOrders, setRecentOrders] = useState([])
   const navigate = useNavigate();
   useEffect(() => {
@@ -35,24 +36,39 @@ const AdminDashboard = () => {
 
     const getRecentOrders = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/order/fetch/recent`, {
+        // 1. Fetch recent orders
+        const ordersResponse = await axios.get(`${BASE_URL}/order/fetch/recent`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
     
-        const { success, data } = response.data;
+        // 2. Extract orders data
+        const fetchedOrders = ordersResponse.data.data;
+        setRecentOrders(fetchedOrders);
     
-        if (success) {
-          setRecentOrders(data);
-          console.log("Recent orders:", data);
-        } else {
-          setRecentOrders([]);
-          console.warn("No recent orders found.");
-        }
-      } catch (error) {
-        console.error(
-          "Error fetching recent orders:",
-          error?.response?.data || error.message
+        // 3. Get unique user IDs from orders
+        const userIds = [...new Set(fetchedOrders.map(order => order.user))];
+    
+        // 4. Fetch user data in parallel
+        const userResponses = await Promise.allSettled(
+          userIds.map(id =>
+            axios.get(`${BASE_URL}/user/fetch/${id}`, {
+              headers: { Authorization: `Bearer ${getToken()}` },
+            })
+          )
         );
+    
+        // 5. Create username mapping
+        const customerData = {};
+        userResponses.forEach(response => {
+          if (response.status === "fulfilled") {
+            const user = response.value.data.data;
+            customerData[user._id] = user.username;
+          }
+        });
+    
+        setCustomers(customerData);
+      } catch (error) {
+        console.error("Error fetching recent orders:", error);
         setRecentOrders([]);
       }
     };
@@ -126,7 +142,7 @@ const handleLogout = async (id) => {
                       #{order.orderId || order._id}
                     </td>
                     <td className="py-3 px-6 text-sm text-gray-700">
-                      {order.user?.name || "Unknown Customer"}
+                      {customers[order.user] || "Unknown Customer"}
                     </td>
                     <td className="py-3 px-6 text-sm text-gray-700">
                       <span className={`px-2 py-1 rounded ${order.status === 'completed'

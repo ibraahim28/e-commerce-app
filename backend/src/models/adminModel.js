@@ -7,8 +7,8 @@ const adminModel = new mongoose.Schema({
     profilePicture: {
         type: String,
         default: './uploads/default.jpg',
-
     },
+    userRole: { type: String, default: 'admin' }
 }, { timestamps: true });
 
 const Admin = mongoose.model('admins', adminModel);
