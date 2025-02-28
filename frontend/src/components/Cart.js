@@ -4,7 +4,6 @@ import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { updateCounter } from "../redux/reducer";
-import { message } from "antd";
 import { BASE_URL } from "../api/config";
 
 const Cart = ({ isOpen, toggleCart }) => {
