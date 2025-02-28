@@ -15,8 +15,8 @@ const Card = ({ data }) => {
       <div className="w-full p-4">
         <img
           className="w-full cursor-pointer aspect-square hover:scale-105 transition-all duration-300 rounded-lg"
-          src={`${BASE_URL}${data.images[0]?.url}`}
-          alt={data.images[0]?.altText}
+          src={`${BASE_URL}${data?.images[0]?.url}`}
+          alt={data?.images[0]?.altText}
         />
       </div>
       <div className="flex flex-col gap-2 text-left p-2">

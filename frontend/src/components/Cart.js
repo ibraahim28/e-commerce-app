@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { updateCounter } from "../redux/reducer";
 import { message } from "antd";
+import { BASE_URL } from "../api/config";
 
 const Cart = ({ isOpen, toggleCart }) => {
   const [myCart, setMyCart] = useState([]);
@@ -126,7 +127,7 @@ const Cart = ({ isOpen, toggleCart }) => {
                   >
                     <div className="flex items-center gap-4">
                       <img
-                        src={item?.images[0]?.url || "default-image-url"}
+                        src={`${BASE_URL}${item?.images[0]?.url}` || "default-image-url"}
                         alt={item.title}
                         className="h-20 w-20 sm:h-24 sm:w-24 object-cover rounded-md border border-gray-300"
                       />

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { addProductToCart, getProductsFromCart } from "../utils/localStorage";
 import { useDispatch } from "react-redux";
 import { updateCounter } from "../redux/reducer";
+import { BASE_URL } from "../api/config";
 
 const ProductPage = () => {
   const { state } = useLocation();
@@ -49,7 +50,7 @@ const ProductPage = () => {
         <div className="w-full md:w-1/2 flex justify-center items-center mb-6 md:mb-0">
           <img
             className="w-full h-auto max-w-sm rounded-lg transform transition-transform duration-500 hover:scale-110"
-            src={state?.images[0]?.url}
+            src={`${BASE_URL}${state?.images[0]?.url}`}
             alt={state?.images[0]?.altText}
           />
         </div>

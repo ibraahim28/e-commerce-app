@@ -205,7 +205,7 @@ const ProfilePage = () => {
                             {/* Product Image */}
                             <div className="w-full sm:w-32 h-32 flex-shrink-0">
                               <img
-                                src={item.images[0].url || '/placeholder-product.jpg'}
+                                src={`${BASE_URL}${item?.images[0]?.url}` || '/placeholder-product.jpg'}
                                 alt={item.name}
                                 className="w-full h-full object-cover rounded-lg"
                               />

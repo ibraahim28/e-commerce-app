@@ -271,8 +271,8 @@ const CheckoutPage = () => {
                     className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
                   >
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={`${BASE_URL}${item?.images[0]?.url}`}
+                      alt={item?.images[0]?.altText}
                       className="w-16 object-cover rounded-lg"
                     />
                     <div className="flex-1 mx-4">

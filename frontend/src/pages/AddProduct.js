@@ -25,37 +25,37 @@ const AddProduct = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Add a new color
-  const handleAddColor = () => {
-    if (colorInput.trim() && !formData.colors.includes(colorInput)) {
-      setFormData({ ...formData, colors: [...formData.colors, colorInput] });
-      setColorInput("");
-    }
-  };
+  // // Add a new color
+  // const handleAddColor = () => {
+  //   if (colorInput.trim() && !formData.colors.includes(colorInput)) {
+  //     setFormData({ ...formData, colors: [...formData.colors, colorInput] });
+  //     setColorInput("");
+  //   }
+  // };
 
-  // Remove a color
-  const handleRemoveColor = (color) => {
-    setFormData({
-      ...formData,
-      colors: formData.colors.filter((c) => c !== color),
-    });
-  };
+  // // Remove a color
+  // const handleRemoveColor = (color) => {
+  //   setFormData({
+  //     ...formData,
+  //     colors: formData.colors.filter((c) => c !== color),
+  //   });
+  // };
 
-  // Add a new size
-  const handleAddSize = () => {
-    if (sizeInput.trim() && !formData.sizes.includes(sizeInput)) {
-      setFormData({ ...formData, sizes: [...formData.sizes, sizeInput] });
-      setSizeInput("");
-    }
-  };
+  // // Add a new size
+  // const handleAddSize = () => {
+  //   if (sizeInput.trim() && !formData.sizes.includes(sizeInput)) {
+  //     setFormData({ ...formData, sizes: [...formData.sizes, sizeInput] });
+  //     setSizeInput("");
+  //   }
+  // };
 
-  // Remove a size
-  const handleRemoveSize = (size) => {
-    setFormData({
-      ...formData,
-      sizes: formData.sizes.filter((s) => s !== size),
-    });
-  };
+  // // Remove a size
+  // const handleRemoveSize = (size) => {
+  //   setFormData({
+  //     ...formData,
+  //     sizes: formData.sizes.filter((s) => s !== size),
+  //   });
+  // };
 
   // Handle image upload and alt text
   const handleAddImage = () => {
@@ -90,8 +90,8 @@ const handleSubmit = async (e) => {
     formDataToSend.append("price", formData.price);
     formDataToSend.append("category", formData.category);
     formDataToSend.append("stock", formData.stock);
-    formDataToSend.append("colors", JSON.stringify(formData.colors));
-    formDataToSend.append("sizes", JSON.stringify(formData.sizes));
+    // formDataToSend.append("colors", JSON.stringify(formData.colors));
+    // formDataToSend.append("sizes", JSON.stringify(formData.sizes));
     
     // Append the image file if available
     if (imageFile) {
@@ -177,11 +177,10 @@ const handleSubmit = async (e) => {
             required
           >
             <option value="">Select Category</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Books">Books</option>
-            <option value="Home Appliances">Home Appliances</option>
-            <option value="Beauty">Beauty</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Salads">Salads</option>
             <option value="Other">Other</option>
           </select>
         </div>
@@ -200,7 +199,7 @@ const handleSubmit = async (e) => {
         </div>
 
         {/* Colors */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Colors</label>
           <div className="flex items-center gap-2">
             <input
@@ -235,10 +234,10 @@ const handleSubmit = async (e) => {
               </span>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Sizes */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Sizes</label>
           <div className="flex items-center gap-2">
             <input
@@ -273,7 +272,7 @@ const handleSubmit = async (e) => {
               </span>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Image Upload */}
         <div className="mb-4">
