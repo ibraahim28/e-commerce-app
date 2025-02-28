@@ -23,6 +23,7 @@ import FetchOrders from "../pages/FetchOrders";
 import FetchUsers from "../pages/FetchUsers";
 import AdminLayout from "../Layouts/AdminLayout"; // Import AdminLayout
 import ProfilePage from "../pages/Profile";
+import UnauthorizedPage from "../pages/UnauthorizedPage";
 
 // Private Route for authentication
 const PrivateRoute = ({ children }) => {
@@ -40,7 +41,7 @@ const AdminPrivateRoute = ({ children }) => {
   const userRole = localStorage.getItem("user_role");
 
   if (userRole !== "admin") {
-    return <Navigate to="/" />;
+    return <Navigate to="/unauthorized" />;
   }
 
   return children;
@@ -91,6 +92,7 @@ const AppRouter = () => {
         </Route>
 
         <Route path="/register" element={<AuthPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage /> } />
 
         {/* Admin routes */}
         <Route

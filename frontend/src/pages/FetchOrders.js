@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FaFilter, FaSearch, FaTimes } from "react-icons/fa";
+import { FaFilter, FaTimes } from "react-icons/fa";
 import { BASE_URL } from "../api/config";
 import { getToken } from "../utils/auth/auth";
 
@@ -156,7 +156,7 @@ const FetchOrders = () => {
       <header className="flex justify-between items-center bg-white shadow-md p-4 rounded-lg mb-6">
         <h1 className="text-xl font-bold text-gray-800">Order Management</h1>
         <button
-          onClick={() => setFilterOpen((prev) => !prev)}
+          onClick={() => setFilterOpen(!filterOpen)}
           className="flex items-center gap-2 px-4 py-2 bg-fresh-green text-white rounded-md shadow-md hover:bg-green-600"
         >
           <FaFilter />

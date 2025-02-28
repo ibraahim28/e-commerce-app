@@ -14,8 +14,8 @@ const AddProduct = () => {
     sizes: [],
   });
 
-  const [colorInput, setColorInput] = useState("");
-  const [sizeInput, setSizeInput] = useState("");
+  // const [colorInput, setColorInput] = useState("");
+  // const [sizeInput, setSizeInput] = useState("");
   const [altText, setAltText] = useState("");
   const [imageFile, setImageFile] = useState('');
 
@@ -73,13 +73,13 @@ const AddProduct = () => {
     }
   };
 
-  // Remove an image
-  const handleRemoveImage = (url) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((image) => image.url !== url),
-    });
-  };
+  // // Remove an image
+  // const handleRemoveImage = (url) => {
+  //   setFormData({
+  //     ...formData,
+  //     images: formData.images.filter((image) => image.url !== url),
+  //   });
+  // };
 
 const handleSubmit = async (e) => {
   e.preventDefault();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getUserData } from '../utils/auth/auth';
-import { FaUser, FaBox, FaShoppingCart } from 'react-icons/fa';
+import { FaUser, FaBox, FaShoppingCart, FaCamera } from 'react-icons/fa';
 import axios from 'axios';
 import { BASE_URL } from '../api/config';
 import { fetchData } from '../utils/data/data';
@@ -15,6 +15,9 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
   const [cart, setCart] = useState([]);
+  const [profilePictureModal, setProfilePictureModal] = useState(false);
+  const [formData, setFormData] = useState({ username: '', profilePicture: '', password: '' });
+  const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -72,11 +75,11 @@ const ProfilePage = () => {
         : item
     );
     setCart(updatedCart);
-  
+
     // Update localStorage for checkout quantities
     let checkoutQuantity = JSON.parse(localStorage.getItem('checkoutQuantity')) || [];
     const itemIndex = checkoutQuantity.findIndex(item => String(item._id) === String(itemId));
-  
+
     if (itemIndex !== -1) {
       // Update existing item's quantity
       checkoutQuantity[itemIndex].quantity = newQuantity;
@@ -84,7 +87,7 @@ const ProfilePage = () => {
       // Add new item with quantity
       checkoutQuantity.push({ _id: itemId, quantity: newQuantity });
     }
-  
+
     localStorage.setItem('checkoutQuantity', JSON.stringify(checkoutQuantity));
   };
 
@@ -99,14 +102,114 @@ const ProfilePage = () => {
     dispatch(updateCounter('decrease'));
   };
 
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFormData({ ...formData, profilePicture: file });
+
+      // Create a preview URL for the uploaded image
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-soft-beige to-fresh-green/10">
+      <div className="flex justify-center items-center min-h-screen bg-soft-beige">
         <div className="animate-pulse bg-white p-8 rounded-2xl shadow-glass-lg backdrop-blur-sm">
           Loading...
         </div>
       </div>
     );
+  }
+
+  if (profilePictureModal) {
+    return (
+      <div onClick={() => setProfilePictureModal(false)} className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center'>
+        <div onClick={(e) => e.stopPropagation()} className='bg-gradient-to-br from-soft-beige to-fresh-green/10 p-8 rounded-lg shadow-lg w-96'>
+          <div className='text-left flex justify-between items-center mb-4'>
+            <h2 className='text-md md:text-xl font-bold tracking-tight leading-[1.1]'>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-fresh-green to-dark-charcoal/50">
+                Update Profile
+              </span>
+            </h2>
+            <button className=' hover:bg-red-500 hover:text-white px-2 py-1 rounded-md' onClick={() => setProfilePictureModal(false)}>Close</button>
+          </div>
+          <div className='my-6'>
+            <div className="w-full flex justify-center flex-col items-center">
+
+              <label
+                htmlFor="profilePicture"
+                className="relative flex rounded-full shadow-md shadow-gray-400 cursor-pointer gap-4 justify-center items-center w-28 h-28 bg-gradient-to-b from-gray-100 to-gray-300 text-sm transition-all duration-200 hover:shadow-lg hover:scale-105 "
+              >
+                {/* Profile Picture Preview or Default Icon */}
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Profile Preview"
+                    className="w-full h-full object-cover rounded-full border-4 border-white shadow-md"
+                  />
+                ) : (
+                  <FaUser size={30} className="text-gray-600" />
+                )}
+
+                {/* Camera Icon */}
+                <div className="absolute bottom-0 right-0 bg-fresh-green w-9 h-9 rounded-full border-2 border-white flex justify-center items-center p-2 transition-all duration-200 hover:scale-110 shadow-md">
+                  <FaCamera size={18} className="text-white" />
+                </div>
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  name="profilePicture"
+                  id="profilePicture"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-dark-charcoal">
+                Username:
+              </label>
+              <input
+                required
+                type="text"
+                name="username"
+                id="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="example123"
+                className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal focus:ring-2 focus:ring-fresh-green focus:outline-none"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-dark-charcoal">
+                Password:
+              </label>
+              <input
+                required
+                type="password"
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="*******"
+                className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg text-dark-charcoal focus:ring-2 focus:ring-fresh-green focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -130,7 +233,7 @@ const ProfilePage = () => {
                     </div>
                   )}
                 </div>
-                <button className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full shadow-md text-sm font-semibold text-fresh-green hover:bg-fresh-green hover:text-white transition-colors duration-200">
+                <button onClick={() => setProfilePictureModal(true)} className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full shadow-md text-sm font-semibold text-fresh-green hover:bg-fresh-green hover:text-white transition-colors duration-200">
                   Edit
                 </button>
               </div>
@@ -152,8 +255,8 @@ const ProfilePage = () => {
               <button
                 onClick={() => setActiveTab('orders')}
                 className={`py-4 px-1 border-b-2 font-medium flex items-center gap-2 transition-colors ${activeTab === 'orders'
-                    ? 'border-fresh-green text-fresh-green'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-fresh-green text-fresh-green'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 <FaBox className="w-5 h-5" />
@@ -162,8 +265,8 @@ const ProfilePage = () => {
               <button
                 onClick={() => setActiveTab('cart')}
                 className={`py-4 px-1 border-b-2 font-medium flex items-center gap-2 transition-colors ${activeTab === 'cart'
-                    ? 'border-fresh-green text-fresh-green'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-fresh-green text-fresh-green'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 <FaShoppingCart className="w-5 h-5" />
@@ -270,9 +373,9 @@ const ProfilePage = () => {
                             ${cart.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}
                           </span>
                         </div>
-                        <button 
-                        onClick={()=>{navigate('/checkout')}}
-                        className="w-full bg-fresh-green text-white py-3 rounded-lg hover:bg-dark-charcoal transition-colors duration-200">
+                        <button
+                          onClick={() => { navigate('/checkout') }}
+                          className="w-full bg-fresh-green text-white py-3 rounded-lg hover:bg-dark-charcoal transition-colors duration-200">
                           Proceed to Checkout
                         </button>
                       </div>
