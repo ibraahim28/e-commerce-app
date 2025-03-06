@@ -1,1 +1,1 @@
-export const BASE_URL = 'http://Localhost:5001'
+export const BASE_URL = 'https://e-commerce-app-amber-theta.vercel.app/'
