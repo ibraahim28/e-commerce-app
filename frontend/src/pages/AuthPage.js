@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getUserRole } from "../utils/auth/auth";
 import { FaCamera, FaUser } from "react-icons/fa6";
+import { BASE_URL } from "../api/config";
 
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(true);
@@ -52,7 +53,7 @@ const AuthPage = () => {
 
     try {
       const { data } = await axios.post(
-        isSignup ? "http://localhost:5001/register" : "http://localhost:5001/login",
+        isSignup ? `${BASE_URL}/register` : `${BASE_URL}/login`,
         formDataToSend
       );
 
@@ -130,7 +131,10 @@ const AuthPage = () => {
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-dark-charcoal">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-dark-charcoal"
+                >
                   Username:
                 </label>
                 <input
@@ -148,7 +152,10 @@ const AuthPage = () => {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-dark-charcoal">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-dark-charcoal"
+            >
               Email:
             </label>
             <input
@@ -164,7 +171,10 @@ const AuthPage = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-dark-charcoal">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-dark-charcoal"
+            >
               Password:
             </label>
             <input
@@ -188,8 +198,13 @@ const AuthPage = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <button onClick={toggleTab} className="text-sm text-fresh-green hover:underline">
-            {isSignup ? "Already have an account? Login" : "Don't have an account? Signup"}
+          <button
+            onClick={toggleTab}
+            className="text-sm text-fresh-green hover:underline"
+          >
+            {isSignup
+              ? "Already have an account? Login"
+              : "Don't have an account? Signup"}
           </button>
         </div>
       </div>
