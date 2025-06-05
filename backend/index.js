@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const path = require('path')
+const path = require("path");
 require("dotenv").config();
 require("./config/DB");
 const userRouter = require("./src/routers/userRouter");
@@ -10,9 +10,17 @@ const adminAuthRouter = require("./src/routers/AdminAuthRouter");
 const productRouter = require("./src/routers/productRouter");
 const orderRouter = require("./src/routers/orderRouter");
 const authenticateUser = require("./src/middlewares/authMiddleware");
-app.use(cors({ origin: "https://ecommerce-ibrahim.netlify.app" }));
+app.use(
+  cors({
+    origin: "https://ecommerce-ibrahim.netlify.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/", authRouter);
 app.use("/admin", adminAuthRouter);
