@@ -1,1 +1,1 @@
-export const BASE_URL = 'https://chat-app-backend-olive-two.vercel.app'
+export const BASE_URL = 'https://e-commerce-app-amber-theta.vercel.app/'
