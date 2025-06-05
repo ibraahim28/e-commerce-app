@@ -10,7 +10,7 @@ const adminAuthRouter = require("./src/routers/AdminAuthRouter");
 const productRouter = require("./src/routers/productRouter");
 const orderRouter = require("./src/routers/orderRouter");
 const authenticateUser = require("./src/middlewares/authMiddleware");
-app.use(cors({ origin: "https://ecommerce-ibrahim.netlify.app" })); 
+app.use(cors({ origin: "https://ecommerce-ibrahim.netlify.app" }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
